@@ -13,6 +13,7 @@ export default function Thread() {
   const [partner, setPartner] = useState(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [selectedMsgId, setSelectedMsgId] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -76,6 +77,14 @@ export default function Thread() {
     }
   }
 
+  async function deleteMessage(id) {
+    const { error } = await supabase.from("messages").delete().eq("id", id);
+    if (!error) {
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      setSelectedMsgId(null);
+    }
+  }
+
   async function sendMessage(e) {
     e.preventDefault();
     if (!text.trim() || !user || sending) return;
@@ -124,12 +133,26 @@ export default function Thread() {
         )}
         {messages.map((msg) => {
           const isMine = msg.from_user_id === user?.id;
+          const isSelected = selectedMsgId === msg.id;
           return (
-            <div key={msg.id} className={`${styles.bubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}>
-              <p className={styles.bubbleText}>{msg.content}</p>
-              <span className={styles.bubbleTime}>
-                {new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
-              </span>
+            <div
+              key={msg.id}
+              className={`${styles.msgRow} ${isMine ? styles.msgRowMine : styles.msgRowTheirs}`}
+            >
+              <div
+                className={`${styles.bubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}
+                onClick={() => isMine && setSelectedMsgId(isSelected ? null : msg.id)}
+              >
+                <p className={styles.bubbleText}>{msg.content}</p>
+                <span className={styles.bubbleTime}>
+                  {new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+              {isMine && isSelected && (
+                <button className={styles.deleteBtn} onClick={() => deleteMessage(msg.id)}>
+                  <TrashIcon />
+                </button>
+              )}
             </div>
           );
         })}
@@ -153,5 +176,16 @@ export default function Thread() {
         </button>
       </form>
     </div>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v6" /><path d="M14 11v6" />
+      <path d="M9 6V4h6v2" />
+    </svg>
   );
 }

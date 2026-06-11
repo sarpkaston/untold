@@ -6,9 +6,8 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 24px 20px 20px;
-  background: var(--warm-white);
+  padding: 14px 20px 12px;
+  background: var(--terracotta);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -16,22 +15,38 @@
 
 .logoWrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.logoIcon {
-  color: var(--terracotta);
+.bookIconWrap {
+  position: relative;
+  width: 28px;
+  height: 34px;
   flex-shrink: 0;
 }
+
+.bookPg {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 18px;
+  height: 26px;
+  border-radius: 1px 4px 4px 1px;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.45);
+}
+
+.bookPg:nth-child(1) { transform: translateX(-60%) rotate(-14deg); }
+.bookPg:nth-child(2) { transform: translateX(-50%) rotate(0deg); background: rgba(255,255,255,0.32); }
+.bookPg:nth-child(3) { transform: translateX(-38%) rotate(14deg); }
 
 .logo {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 22px;
   font-weight: 700;
-  color: var(--ink);
-  letter-spacing: 0.5px;
+  color: white;
+  letter-spacing: 0.2px;
   line-height: 1;
 }
 

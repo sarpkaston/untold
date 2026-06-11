@@ -74,6 +74,21 @@
   margin: 32px 0;
 }
 
+.msgRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.msgRowMine {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.msgRowTheirs {
+  align-self: flex-start;
+}
+
 .bubble {
   max-width: 72%;
   padding: 10px 14px;
@@ -81,21 +96,39 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  cursor: default;
 }
 
 .bubbleMine {
-  align-self: flex-end;
   background: var(--terracotta);
   color: white;
   border-bottom-right-radius: 4px;
+  cursor: pointer;
 }
 
 .bubbleTheirs {
-  align-self: flex-start;
   background: var(--paper);
   color: var(--ink);
   border-bottom-left-radius: 4px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: rgba(231,76,60,0.65);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.deleteBtn:active {
+  color: #e74c3c;
+  background: rgba(231,76,60,0.1);
 }
 
 .bubbleText {
