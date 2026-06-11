@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 20px 18px;
+  padding: 24px 20px 20px;
   background: var(--warm-white);
   position: sticky;
   top: 0;
@@ -16,8 +16,9 @@
 
 .logoWrap {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .logoIcon {
@@ -27,10 +28,10 @@
 
 .logo {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
-  color: var(--terracotta);
-  letter-spacing: -0.3px;
+  color: var(--ink);
+  letter-spacing: 0.5px;
   line-height: 1;
 }
 
