@@ -96,7 +96,7 @@ export function AppProvider({ children }) {
         .eq("user_id", user.id).eq("story_id", id);
     } else {
       await supabase.from("story_saves")
-        .upsert({ user_id: user.id, story_id: id }, { onConflict: "user_id,story_id" });
+        .insert({ user_id: user.id, story_id: id });
     }
   }
 

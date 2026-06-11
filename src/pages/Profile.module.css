@@ -54,6 +54,15 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
+.avatarImg {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.55);
+  object-fit: cover;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
 /* Profile text */
 .profileText {
   display: flex;
@@ -630,23 +639,25 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 500;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 24px 16px;
 }
 
 .modal {
   background: white;
-  border-radius: 20px 20px 0 0;
-  padding: 24px 20px 40px;
+  border-radius: 20px;
+  padding: 24px 20px;
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 
 .modalTitle {
@@ -751,3 +762,119 @@
   padding: 10px 12px;
   margin: 0;
 }
+
+/* ── Messages button (header) ───────────────── */
+.messagesBtn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.messagesBtn:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Connections tab ────────────────────────── */
+.connectionsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.connLoading {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 0;
+}
+
+.connDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  opacity: 0.5;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.connectionCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--paper);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 14px 20px;
+}
+
+.connectionAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.connectionBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.connectionName {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  margin: 0 0 6px;
+  cursor: pointer;
+}
+.connectionName:hover { color: var(--terracotta); }
+
+.connectionBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.catBadge {
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(193,68,14,0.1);
+  color: var(--terracotta);
+  border-radius: 10px;
+  padding: 3px 9px;
+}
+
+.msgBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.msgBtn:hover { background: var(--terracotta-dark, #8b2c0a); }

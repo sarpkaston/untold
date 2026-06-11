@@ -186,13 +186,31 @@ export default function LiveStream() {
   }
 
   async function endStream() {
-    if (roomRef.current) roomRef.current.disconnect();
+    if (roomRef.current) { roomRef.current.disconnect(); roomRef.current = null; }
     await supabase
       .from("live_sessions")
       .update({ is_active: false })
       .eq("room_name", roomName);
     navigate("/profil");
   }
+
+  async function handleExit() {
+    if (isHost) {
+      await endStream();
+    } else {
+      if (roomRef.current) { roomRef.current.disconnect(); roomRef.current = null; }
+      navigate("/eslesmeler");
+    }
+  }
+
+  // Browser/Android back button — yayını düzgün kapat
+  useEffect(() => {
+    if (phase !== "live") return;
+    window.history.pushState(null, "", window.location.href);
+    function onPopState() { handleExit(); }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [phase, isHost]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function sendQuestion(e) {
     e.preventDefault();
@@ -259,7 +277,7 @@ export default function LiveStream() {
 
       {/* ── Top bar ──────────────────────────────── */}
       <div className={styles.topBar}>
-        <button className={styles.topBack} onClick={() => navigate(-1)}>
+        <button className={styles.topBack} onClick={handleExit}>
           <ChevronIcon />
         </button>
         <div className={styles.topMid}>

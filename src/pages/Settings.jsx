@@ -14,6 +14,8 @@ export default function Settings() {
   const [fullName, setFullName] = useState(defaultName);
   const [username, setUsername] = useState(defaultUsername);
   const [bio, setBio] = useState(user?.user_metadata?.bio || "");
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -31,8 +33,32 @@ export default function Settings() {
         if (data.full_name) setFullName(data.full_name);
         if (data.username) setUsername(data.username);
         if (data.bio) setBio(data.bio);
+        if (data.avatar_url) setAvatarUrl(data.avatar_url);
       });
   }, [user]);
+
+  async function uploadAvatar(e) {
+    const file = e.target.files[0];
+    if (!file || !user) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) { setSaveError("Sadece JPEG, PNG veya WebP yükleyebilirsin."); return; }
+    setUploading(true);
+    setSaveError("");
+    const ext = file.name.split(".").pop().toLowerCase();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) { setSaveError("Fotoğraf yüklenemedi: " + upErr.message); setUploading(false); return; }
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    const url = publicUrl + "?t=" + Date.now();
+    await supabase.from("profiles").upsert(
+      { id: user.id, avatar_url: url, updated_at: new Date().toISOString() },
+      { onConflict: "id" }
+    );
+    setAvatarUrl(url);
+    setUploading(false);
+  }
 
   async function saveProfile() {
     if (!user || !fullName.trim() || !username.trim()) return;
@@ -86,8 +112,25 @@ export default function Settings() {
         <p className={styles.sectionLabel}>Hesap Ayarları</p>
         <div className={styles.profileCard}>
           <div className={styles.avatarSection}>
-            <div className={styles.profileAvatar}>{initials}</div>
-            <p className={styles.avatarHint}>Avatar harfleri ad soyadından oluşuyor</p>
+            <label className={styles.avatarUploadLabel} htmlFor="avatarInput">
+              {avatarUrl ? (
+                <img src={avatarUrl} className={styles.profileAvatarImg} alt="Profil fotoğrafı" />
+              ) : (
+                <div className={styles.profileAvatar}>{initials}</div>
+              )}
+              <span className={styles.avatarOverlay}>
+                {uploading ? "Yükleniyor…" : "Değiştir"}
+              </span>
+            </label>
+            <input
+              id="avatarInput"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className={styles.avatarFileInput}
+              onChange={uploadAvatar}
+              disabled={uploading}
+            />
+            <p className={styles.avatarHint}>Fotoğrafa tıkla, yeni fotoğraf seç</p>
           </div>
 
           <div className={styles.formGroup}>

@@ -27,6 +27,13 @@ export default function Profile() {
   // Story delete
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
+  // Avatar
+  const [avatarUrl, setAvatarUrl] = useState(null);
+
+  // Bağlantılar
+  const [connections, setConnections] = useState([]);
+  const [connectionsLoading, setConnectionsLoading] = useState(false);
+
   // Live modals
   const [showLiveModal, setShowLiveModal] = useState(false);
   const [liveTitle, setLiveTitle] = useState("");
@@ -45,6 +52,13 @@ export default function Profile() {
   const username = "@" + (user?.email?.split("@")[0] || "kullanici").toLowerCase();
   const bio = user?.user_metadata?.bio || "";
   const initials = getInitials(displayName);
+
+  // Load avatar URL
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).single()
+      .then(({ data }) => { if (data?.avatar_url) setAvatarUrl(data.avatar_url); });
+  }, [user]);
 
   // Load my stories
   useEffect(() => {
@@ -75,6 +89,52 @@ export default function Profile() {
       setShelfStories((data || []).map(mapSupabaseStory));
     })();
   }, [user, shelfIds]); // shelfIds bağımlılığı toggle sonrası yenileme için
+
+  // Fetch connections when tab is active
+  useEffect(() => {
+    if (activeTab !== "baglantilar" || !user || connections.length > 0) return;
+    setConnectionsLoading(true);
+
+    async function fetchConnections() {
+      const { data: myStories } = await supabase
+        .from("stories")
+        .select("category")
+        .eq("user_id", user.id)
+        .eq("published", true);
+
+      const myCats = new Set((myStories || []).map((s) => s.category));
+      if (myCats.size === 0) { setConnectionsLoading(false); return; }
+
+      const { data: otherStories } = await supabase
+        .from("stories")
+        .select("user_id, author_name, category")
+        .eq("published", true)
+        .eq("is_anonymous", false)
+        .neq("user_id", user.id);
+
+      const userMap = {};
+      (otherStories || []).forEach((s) => {
+        if (!userMap[s.user_id]) {
+          userMap[s.user_id] = { user_id: s.user_id, author_name: s.author_name, cats: new Set() };
+        }
+        userMap[s.user_id].cats.add(s.category);
+      });
+
+      const matches = Object.values(userMap)
+        .map((u) => {
+          const common = [...u.cats].filter((c) => myCats.has(c));
+          return { user_id: u.user_id, author_name: u.author_name, commonCats: common };
+        })
+        .filter((u) => u.commonCats.length > 0)
+        .sort((a, b) => b.commonCats.length - a.commonCats.length)
+        .slice(0, 25);
+
+      setConnections(matches);
+      setConnectionsLoading(false);
+    }
+
+    fetchConnections();
+  }, [activeTab, user]);
 
   async function deleteStory(id) {
     await supabase.from("stories").delete().eq("id", id);
@@ -156,9 +216,16 @@ export default function Profile() {
         <button className={styles.settingsBtn} onClick={() => navigate("/ayarlar")}>
           <SettingsIcon />
         </button>
+        <button className={styles.messagesBtn} onClick={() => navigate("/mesajlar")}>
+          <MessagesBubbleIcon />
+        </button>
 
         <div className={styles.avatarWrap}>
-          <div className={styles.avatar}>{initials}</div>
+          {avatarUrl ? (
+            <img src={avatarUrl} className={styles.avatarImg} alt={displayName} />
+          ) : (
+            <div className={styles.avatar}>{initials}</div>
+          )}
         </div>
 
         {editMode ? (
@@ -325,7 +392,46 @@ export default function Profile() {
 
         {/* Bağlantılarım */}
         {activeTab === "baglantilar" && (
-          <EmptyState emoji="🤝" title="Henüz bağlantın yok" desc="Bağlantı özelliği yakında geliyor." />
+          <div className={styles.connectionsTab}>
+            {connectionsLoading ? (
+              <div className={styles.connLoading}>
+                {[0,1,2].map((i) => <span key={i} className={styles.connDot} style={{ animationDelay: `${i*0.2}s` }} />)}
+              </div>
+            ) : connections.length === 0 ? (
+              <EmptyState emoji="🤝" title="Henüz eşleşme yok" desc="Hikaye yaz, aynı kategoriyi kullanan yazarlarla eşleş!" />
+            ) : (
+              connections.map((c) => (
+                <div key={c.user_id} className={styles.connectionCard}>
+                  <div
+                    className={styles.connectionAvatar}
+                    onClick={() => navigate(`/kullanici/${c.user_id}`)}
+                  >
+                    {getInitials(c.author_name)}
+                  </div>
+                  <div className={styles.connectionBody}>
+                    <p
+                      className={styles.connectionName}
+                      onClick={() => navigate(`/kullanici/${c.user_id}`)}
+                    >
+                      {c.author_name}
+                    </p>
+                    <div className={styles.connectionBadges}>
+                      {c.commonCats.slice(0, 3).map((cat) => (
+                        <span key={cat} className={styles.catBadge}>{cat}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    className={styles.msgBtn}
+                    onClick={() => navigate(`/mesajlar/${c.user_id}`)}
+                    title="Mesaj at"
+                  >
+                    <ChatIcon />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         )}
       </div>
 
@@ -411,6 +517,22 @@ function TrashIcon() {
       <path d="M19 6l-1 14H6L5 6" />
       <path d="M10 11v6M14 11v6" />
       <path d="M9 6V4h6v2" />
+    </svg>
+  );
+}
+
+function MessagesBubbleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function ChatIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }

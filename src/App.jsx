@@ -18,6 +18,8 @@ import Terms from "./pages/Terms";
 import LiveStream from "./pages/LiveStream";
 import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
+import Messages from "./pages/Messages";
+import Thread from "./pages/Thread";
 
 function AppInner() {
   const { user, authLoading } = useApp();
@@ -65,6 +67,8 @@ function AppInner() {
             <Route path="/canli/:roomName" element={<LiveStream />} />
         <Route path="/kullanici/:userId" element={<UserProfile />} />
         <Route path="/ayarlar" element={<Settings />} />
+        <Route path="/mesajlar" element={<Messages />} />
+        <Route path="/mesajlar/:userId" element={<Thread />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <BottomNav />

@@ -18,10 +18,26 @@ export default function StoryDetail() {
   const [comments, setComments] = useState([]);
   const [related, setRelated] = useState([]);
   const [commentText, setCommentText] = useState("");
+  const [commentError, setCommentError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+  const [profile, setProfile] = useState(null);
 
-  const authorName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Kullanıcı";
+  // Profiles tablosundan yazar bilgisi çek
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name, username")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => { if (data) setProfile(data); });
+  }, [user]);
+
+  const authorName = profile?.full_name
+    || user?.user_metadata?.full_name
+    || user?.email?.split("@")[0]
+    || "Kullanıcı";
   const authorInitials = getInitials(authorName);
 
   useEffect(() => {
@@ -73,7 +89,7 @@ export default function StoryDetail() {
   useEffect(() => {
     if (!user || !isUUID(id)) return;
     supabase.from("story_views")
-      .upsert({ user_id: user.id, story_id: id }, { onConflict: "user_id,story_id" })
+      .insert({ user_id: user.id, story_id: id })
       .then(() => {});
   }, [id, user]);
 
@@ -94,30 +110,39 @@ export default function StoryDetail() {
     e.preventDefault();
     if (!commentText.trim() || !user || !isUUID(id) || submitting) return;
     setSubmitting(true);
+    setCommentError("");
 
-    const newComment = {
-      user_id: user.id,
-      story_id: id,
-      author_name: authorName,
-      author_avatar: authorInitials,
-      content: commentText.trim(),
-    };
+    const { data, error } = await supabase
+      .from("story_comments")
+      .insert({
+        user_id: user.id,
+        story_id: id,
+        author_name: authorName,
+        author_avatar: authorInitials,
+        content: commentText.trim(),
+      })
+      .select()
+      .single();
 
-    const { data, error } = await supabase.from("story_comments").insert(newComment).select().single();
     setSubmitting(false);
-    if (!error && data) {
-      setComments((prev) => [
-        ...prev,
-        {
-          id: data.id,
-          author: data.author_name,
-          authorAvatar: data.author_avatar,
-          text: data.content,
-          date: "Az önce",
-        },
-      ]);
-      setCommentText("");
+
+    if (error) {
+      console.error("[story_comments insert]", error.code, error.message, error.details);
+      setCommentError("Yorum gönderilemedi: " + error.message);
+      return;
     }
+
+    setComments((prev) => [
+      ...prev,
+      {
+        id: data.id,
+        author: data.author_name,
+        authorAvatar: data.author_avatar,
+        text: data.content,
+        date: "Az önce",
+      },
+    ]);
+    setCommentText("");
   }
 
   if (loading) {
@@ -292,11 +317,16 @@ export default function StoryDetail() {
           </div>
           {commentText && (
             <div className={styles.commentActions}>
-              <button type="button" className={styles.cancelBtn} onClick={() => setCommentText("")}>İptal</button>
+              <button type="button" className={styles.cancelBtn} onClick={() => { setCommentText(""); setCommentError(""); }}>İptal</button>
               <button type="submit" className={styles.submitBtn} disabled={submitting}>
                 {submitting ? "Gönderiliyor…" : "Gönder"}
               </button>
             </div>
+          )}
+          {commentError && (
+            <p style={{ fontSize: 13, color: "#c0392b", margin: "8px 0 0", padding: "8px 12px", background: "#fef2f2", borderRadius: 8 }}>
+              {commentError}
+            </p>
           )}
         </form>
 

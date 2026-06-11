@@ -116,6 +116,13 @@
   gap: 14px;
 }
 
+.avatarUploadLabel {
+  position: relative;
+  cursor: pointer;
+  display: block;
+  flex-shrink: 0;
+}
+
 .profileAvatar {
   width: 60px;
   height: 60px;
@@ -128,7 +135,35 @@
   font-size: 22px;
   font-weight: 700;
   font-family: 'Playfair Display', Georgia, serif;
-  flex-shrink: 0;
+}
+
+.profileAvatarImg {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.avatarUploadLabel:hover .avatarOverlay { opacity: 1; }
+
+.avatarFileInput {
+  display: none;
 }
 
 .avatarHint {
