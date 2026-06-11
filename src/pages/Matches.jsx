@@ -123,7 +123,7 @@ export default function Matches() {
         .eq("user_id", user.id)
         .eq("published", true);
 
-      const myCats = new Set((myStories || []).map((s) => s.category));
+      const myCats = new Set((myStories || []).map((s) => s.category.toLowerCase()));
 
       if (myCats.size === 0) { setMatchesLoading(false); return; }
 
@@ -146,7 +146,7 @@ export default function Matches() {
             categories: new Set(),
           };
         }
-        userMap[s.user_id].categories.add(s.category);
+        userMap[s.user_id].categories.add(s.category.toLowerCase());
       });
 
       // Jaccard benzerliği hesapla

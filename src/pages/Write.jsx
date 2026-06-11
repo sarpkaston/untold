@@ -96,10 +96,12 @@ export default function Write() {
     const authorName = isAnonymous ? "Anonim" : realName;
     const authorAvatar = isAnonymous ? "??" : getInitials(realName);
 
+    const normalizedCategory = form.category.trim().toLowerCase();
+
     if (!PRESET_CATEGORIES.includes(form.category)) {
       await supabase
         .from("categories")
-        .upsert({ name: form.category, is_preset: false }, { onConflict: "name", ignoreDuplicates: true });
+        .upsert({ name: normalizedCategory, is_preset: false }, { onConflict: "name", ignoreDuplicates: true });
     }
 
     const { error } = await supabase.from("stories").insert({
@@ -107,7 +109,7 @@ export default function Write() {
       title:        form.title.trim(),
       subtitle:     form.subtitle.trim(),
       content:      form.content,
-      category:     form.category,
+      category:     normalizedCategory,
       is_anonymous: isAnonymous,
       author_name:  authorName,
       author_avatar: authorAvatar,

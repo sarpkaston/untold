@@ -102,7 +102,7 @@ export default function Profile() {
         .eq("user_id", user.id)
         .eq("published", true);
 
-      const myCats = new Set((myStories || []).map((s) => s.category));
+      const myCats = new Set((myStories || []).map((s) => s.category.toLowerCase()));
       if (myCats.size === 0) { setConnectionsLoading(false); return; }
 
       const { data: otherStories } = await supabase
@@ -117,7 +117,7 @@ export default function Profile() {
         if (!userMap[s.user_id]) {
           userMap[s.user_id] = { user_id: s.user_id, author_name: s.author_name, cats: new Set() };
         }
-        userMap[s.user_id].cats.add(s.category);
+        userMap[s.user_id].cats.add(s.category.toLowerCase());
       });
 
       const matches = Object.values(userMap)
