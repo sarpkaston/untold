@@ -34,15 +34,27 @@
   color: var(--terracotta);
 }
 
-.icon {
+.iconWrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.15s;
 }
 
-.active .icon {
+.active .iconWrap {
   transform: translateY(-1px);
+}
+
+.unreadDot {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e74c3c;
+  border: 1.5px solid var(--warm-white);
 }
 
 .label {

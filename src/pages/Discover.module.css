@@ -6,29 +6,32 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px 10px;
-  border-bottom: 1px solid var(--border);
+  justify-content: center;
+  padding: 22px 20px 18px;
   background: var(--warm-white);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.logo {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--terracotta);
-  display: block;
-  line-height: 1.1;
+.logoWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.tagline {
-  font-size: 10px;
-  color: var(--ink-faint);
-  font-style: italic;
-  margin-top: 1px;
+.logoIcon {
+  color: var(--terracotta);
+  flex-shrink: 0;
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: -0.3px;
+  line-height: 1;
 }
 
 .divider {

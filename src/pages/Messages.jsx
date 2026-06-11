@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useApp } from "../context/AppContext";
 import { getInitials } from "../lib/storyUtils";
@@ -79,7 +79,8 @@ export default function Messages() {
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>💬</span>
           <p className={styles.emptyTitle}>Henüz mesajın yok</p>
-          <p className={styles.emptyDesc}>Bağlantılar sekmesinden birine mesaj gönder!</p>
+          <p className={styles.emptyDesc}>Bağlantı kurarak sohbet başlatabilirsin.</p>
+          <Link to="/eslesmeler" className={styles.emptyBtn}>Bağlan</Link>
         </div>
       ) : (
         <div className={styles.list}>
