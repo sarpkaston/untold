@@ -92,12 +92,12 @@ export default function MyStory() {
             </div>
 
             {[
-              "Çocukluğunda en çok korktuğun şeyi anlat.",
-              "Hayatını değiştiren bir karar almadan önceki an.",
-              "Seni en iyi anlayan kişi kimdi?",
-              "Pişman olmadığın en büyük hatan neydi?",
-              "Sana 'olmaz' denen ama başardığın şey.",
-              "Yalnız kaldığında ne düşünürsün?",
+              "Kimseye anlatamadığın ama içinde taşıdığın bir şey var mı?",
+              "Hayatının dönüm noktası hangisiydi — ve o an ne hissettin?",
+              "Seni en çok değiştiren kayıp neydi?",
+              "Utanarak değil, cesaretle anlatabileceğin bir şeyi anlat.",
+              "10 yıl sonra kendine ne anlatmak istersin?",
+              "Herkesten sakladığın ama aslında paylaşmak istediğin ne?",
             ].map((tip, i) => (
               <div key={i} className={styles.tip}>
                 <span className={styles.tipNum}>{i + 1}</span>
