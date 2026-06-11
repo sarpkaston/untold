@@ -1,20 +1,18 @@
 .page {
-  min-height: 100vh;
+  height: calc(100dvh - var(--bottom-nav-height, 68px));
   background: var(--cream);
   display: flex;
   flex-direction: column;
-  padding-bottom: 72px;
+  overflow: hidden;
 }
 
 .header {
+  flex-shrink: 0;
   background: linear-gradient(160deg, #c1440e 0%, #8b2c0a 100%);
   padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .back {
@@ -60,11 +58,13 @@
 
 .messages {
   flex: 1;
-  padding: 16px 16px 8px;
+  min-height: 0;
+  padding: 12px 12px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .emptyChat {
@@ -112,29 +112,27 @@
 }
 
 .inputRow {
-  position: fixed;
-  bottom: var(--bottom-nav-height, 60px);
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
   background: var(--paper);
   border-top: 1px solid rgba(0,0,0,0.08);
-  padding: 10px 12px;
+  padding: 8px 12px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  z-index: 20;
 }
 
 .input {
   flex: 1;
   border: 1.5px solid rgba(0,0,0,0.12);
-  border-radius: 22px;
-  padding: 10px 16px;
+  border-radius: 20px;
+  padding: 8px 14px;
   font-size: 15px;
+  line-height: 1.4;
   background: var(--cream);
   color: var(--ink);
   outline: none;
   font-family: 'Inter', sans-serif;
+  min-height: 36px;
 }
 
 .input:focus {
@@ -142,8 +140,8 @@
 }
 
 .sendBtn {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--terracotta);
   color: white;
