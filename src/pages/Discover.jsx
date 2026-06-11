@@ -24,7 +24,7 @@ export default function Discover() {
     async function fetchStories() {
       const { data, error } = await supabase
         .from("stories")
-        .select("*")
+        .select("*, story_comments(count)")
         .eq("published", true)
         .order("created_at", { ascending: false })
         .limit(30);

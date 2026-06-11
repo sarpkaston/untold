@@ -90,9 +90,9 @@ export default function Profile() {
     })();
   }, [user, shelfIds]); // shelfIds bağımlılığı toggle sonrası yenileme için
 
-  // Fetch connections when tab is active
+  // Fetch connections on mount (for count in stats) and when tab is active
   useEffect(() => {
-    if (activeTab !== "baglantilar" || !user || connections.length > 0) return;
+    if (!user || connections.length > 0) return;
     setConnectionsLoading(true);
 
     async function fetchConnections() {
@@ -134,7 +134,7 @@ export default function Profile() {
     }
 
     fetchConnections();
-  }, [activeTab, user]);
+  }, [user]);
 
   async function deleteStory(id) {
     await supabase.from("stories").delete().eq("id", id);
@@ -287,7 +287,7 @@ export default function Profile() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statIcon}><ConnectStatIcon /></span>
-          <span className={styles.statNum}>{connectionIds.length}</span>
+          <span className={styles.statNum}>{connections.length}</span>
           <span className={styles.statLabel}>Bağlantı</span>
         </div>
       </div>

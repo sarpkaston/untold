@@ -272,6 +272,26 @@
   line-height: 1.2;
 }
 
+/* ── Comment stat badge ─────────────────────── */
+.commentStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  color: var(--ink-muted);
+  text-decoration: none;
+  border-left: 1px solid var(--border);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+.commentStat:active {
+  background: var(--terracotta-pale);
+}
+
 /* ── Read button ────────────────────────────── */
 .readBtn {
   display: block;

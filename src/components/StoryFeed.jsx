@@ -21,7 +21,6 @@ function StoryCard({ story }) {
     isConnected, toggleConnection,
   } = useApp();
 
-  const [commentOpen, setCommentOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   function fire(label, action) {
@@ -98,22 +97,23 @@ function StoryCard({ story }) {
           active={bookmarked}
           onClick={() => fire(bookmarked ? "Yer imi kaldırıldı" : "Yer imi eklendi ✓", () => toggleBookmark(story.id))}
         />
-        <ActionBtn
-          icon={<ConnectIcon />}
-          label="Bağlantı"
-          active={connected}
-          onClick={() => fire(connected ? "İstek geri alındı" : "Bağlantı isteği gönderildi ✓", () => toggleConnection(story.id))}
-        />
-        <ActionBtn
-          icon={<CommentIcon />}
-          label={`Yorum ${story.comments.length > 0 ? `(${story.comments.length})` : ""}`}
-          active={commentOpen}
-          onClick={() => setCommentOpen((v) => !v)}
-        />
+        {!story.isAnonymous && (
+          <ActionBtn
+            icon={<ConnectIcon />}
+            label="Bağlantı"
+            active={connected}
+            onClick={() => fire(connected ? "İstek geri alındı" : "Bağlantı isteği gönderildi ✓", () => toggleConnection(story.id))}
+          />
+        )}
+        <Link
+          to={`/hikaye/${story.id}`}
+          className={styles.commentStat}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CommentIcon />
+          <span>{story.commentCount ?? 0}</span>
+        </Link>
       </div>
-
-      {/* Inline comment box */}
-      {commentOpen && <InlineComments story={story} onClose={() => setCommentOpen(false)} />}
 
       {/* Read link */}
       <Link to={`/hikaye/${story.id}`} className={styles.readBtn}>
@@ -132,56 +132,6 @@ function ActionBtn({ icon, label, active, onClick }) {
       <span className={styles.actionIcon}>{icon}</span>
       <span className={styles.actionLabel}>{label}</span>
     </button>
-  );
-}
-
-function InlineComments({ story, onClose }) {
-  const [list, setList] = useState(story.comments);
-  const [text, setText] = useState("");
-
-  function submit(e) {
-    e.preventDefault();
-    if (!text.trim()) return;
-    setList((p) => [...p, { id: Date.now(), author: "Sen", authorAvatar: "SN", text: text.trim(), date: "Az önce" }]);
-    setText("");
-  }
-
-  return (
-    <div className={styles.commentsBox}>
-      <div className={styles.commentsHeader}>
-        <span className={styles.commentsTitle}>Yorumlar</span>
-        <button className={styles.commentsClose} onClick={onClose}>✕</button>
-      </div>
-
-      <div className={styles.commentsList}>
-        {list.length === 0 && (
-          <p className={styles.noComments}>İlk yorumu sen yaz!</p>
-        )}
-        {list.map((c) => (
-          <div key={c.id} className={styles.commentRow}>
-            <span className={styles.commentAv}>{c.authorAvatar}</span>
-            <div className={styles.commentBubble}>
-              <span className={styles.commentAuthor}>{c.author}</span>
-              <span className={styles.commentDate}>{c.date}</span>
-              <p className={styles.commentText}>{c.text}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <form className={styles.commentForm} onSubmit={submit}>
-        <input
-          className={styles.commentInput}
-          placeholder="Yorum yaz…"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={280}
-        />
-        <button type="submit" className={styles.commentSend} disabled={!text.trim()}>
-          <SendIcon />
-        </button>
-      </form>
-    </div>
   );
 }
 
@@ -232,11 +182,3 @@ function CommentIcon() {
   );
 }
 
-function SendIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13"/>
-      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-    </svg>
-  );
-}
