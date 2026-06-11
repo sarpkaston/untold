@@ -1,0 +1,333 @@
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 32px;
+  background: linear-gradient(160deg, #fdf2eb 0%, #f5f0eb 50%, #f0e8e0 100%);
+  overflow-y: auto;
+  gap: 28px;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(201,106,58,0.025) 0px,
+    rgba(201,106,58,0.025) 1px,
+    transparent 1px,
+    transparent 44px
+  );
+}
+
+.shimmer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%,
+    rgba(201,106,58,0.06) 0%,
+    transparent 70%);
+}
+
+/* ── Logo ───────────────────────────────────── */
+.logoArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.bookMark {
+  width: 28px;
+  height: 38px;
+  background: linear-gradient(180deg, #c96a3a, #a3481e);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  margin-bottom: 6px;
+  box-shadow: 0 4px 20px rgba(201,106,58,0.35);
+}
+
+.bookMarkInner {
+  display: block;
+  width: 14px;
+  height: 1.5px;
+  background: rgba(255,255,255,0.4);
+  margin: 8px auto 0;
+  border-radius: 1px;
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.tagline {
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 2.5px;
+  font-style: italic;
+}
+
+/* ── Card ───────────────────────────────────── */
+.card {
+  width: 100%;
+  max-width: 350px;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  box-shadow: 0 8px 40px rgba(26,20,16,0.1), 0 2px 8px rgba(26,20,16,0.06);
+}
+
+/* ── Mode toggle ─────────────────────────────── */
+.modeToggle {
+  display: flex;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modeBtnActive {
+  background: var(--terracotta);
+  color: white;
+  box-shadow: 0 2px 10px rgba(201,106,58,0.3);
+}
+
+/* ── Form ───────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  letter-spacing: 0.3px;
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputWrap > svg {
+  position: absolute;
+  left: 13px;
+  color: var(--ink-faint);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 42px 12px 38px;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+
+.input::placeholder {
+  color: var(--ink-faint);
+}
+
+.input:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(201,106,58,0.12);
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.eyeBtn:hover {
+  color: var(--ink-muted);
+}
+
+.forgotLink {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--terracotta);
+  cursor: pointer;
+  margin-top: -6px;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+
+.forgotLink:hover { opacity: 1; }
+
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #c96a3a, #a3481e);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(201,106,58,0.3);
+  margin-top: 4px;
+}
+
+.submitBtn:active {
+  opacity: 0.9;
+  box-shadow: 0 2px 10px rgba(201,106,58,0.2);
+}
+
+/* ── Divider ────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.dividerText {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* ── Google button ──────────────────────────── */
+.googleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.googleBtn:hover {
+  border-color: var(--terracotta-muted);
+  background: var(--terracotta-pale);
+}
+
+/* ── Guest link ─────────────────────────────── */
+.guestLink {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--ink-faint);
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s;
+  padding: 4px;
+}
+
+.guestLink:hover { color: var(--ink-muted); }
+
+/* ── Footer ─────────────────────────────────── */
+.footer {
+  font-size: 13px;
+  color: var(--ink-muted);
+  text-align: center;
+  position: relative;
+}
+
+.switchMode {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--terracotta);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.switchMode:hover { opacity: 0.8; }
+
+/* ── Error / Success boxes ──────────────────── */
+.errorBox {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #b91c1c;
+  line-height: 1.45;
+}
+
+.successBox {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #15803d;
+  line-height: 1.45;
+}
+
+/* ── Disabled / loading state ───────────────── */
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}

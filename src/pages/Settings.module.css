@@ -1,0 +1,254 @@
+.page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding-bottom: var(--bottom-nav-height, 80px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  color: var(--ink-muted);
+  padding: 4px;
+  margin-left: -4px;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.section {
+  padding: 20px 16px 0;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 8px 4px;
+}
+
+.list {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--ink);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.12s;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:active {
+  background: var(--cream);
+}
+
+.itemIcon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.itemLabel {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+}
+
+.chevron {
+  font-size: 18px;
+  color: var(--ink-faint);
+}
+
+.danger {
+  color: #c0392b;
+}
+
+/* ── Hesap Ayarları form ─────────────────────── */
+.profileCard {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profileAvatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c1440e, #8b2c0a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Playfair Display', Georgia, serif;
+  flex-shrink: 0;
+}
+
+.avatarHint {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.formInput:focus {
+  border-color: var(--terracotta);
+}
+
+.usernameWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--cream);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.usernameWrap:focus-within {
+  border-color: var(--terracotta);
+}
+
+.atSign {
+  padding: 0 4px 0 12px;
+  font-size: 15px;
+  color: var(--ink-muted);
+  font-family: 'Inter', sans-serif;
+}
+
+.usernameInput {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding-left: 2px;
+  flex: 1;
+}
+
+.usernameInput:focus {
+  border-color: transparent;
+}
+
+.formTextarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+.formTextarea:focus {
+  border-color: var(--terracotta);
+}
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.saveError {
+  font-size: 13px;
+  color: #c0392b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.saveBtn {
+  padding: 12px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,190 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-height) + 16px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--warm-white);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--terracotta);
+  display: block;
+  line-height: 1.1;
+}
+
+.tagline {
+  font-size: 10px;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin-top: 1px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 12px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.dividerText {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.loadingWrap {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.loadingDots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.loadingDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  opacity: 0.4;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+.loadingDots span:nth-child(2) { animation-delay: 0.2s; }
+.loadingDots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% { opacity: 0.4; transform: scale(1); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── Sana Özel ────────────────────────────────── */
+.recSection {
+  padding: 14px 16px 0;
+  border-bottom: 6px solid var(--cream);
+}
+
+.recHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.recSub {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.recScroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.recScroll::-webkit-scrollbar { display: none; }
+
+.recCard {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+  width: 108px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recCover {
+  position: relative;
+  height: 145px;
+  border-radius: 3px 10px 10px 3px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px 8px 10px 12px;
+  box-shadow: -3px 3px 12px rgba(0,0,0,0.22);
+}
+
+.recSpine {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 7px;
+  background: rgba(0,0,0,0.22);
+}
+
+.recLines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg,
+    rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+    transparent 1px, transparent 24px);
+}
+
+.recContent {
+  position: relative;
+  z-index: 1;
+}
+
+.recCat {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 4px;
+}
+
+.recName {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+  line-height: 1.25;
+}
+
+.recAuthor {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.recMeta {
+  font-size: 10px;
+  color: var(--ink-faint);
+}

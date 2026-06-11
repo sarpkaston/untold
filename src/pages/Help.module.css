@@ -1,0 +1,325 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  background: var(--cream);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 56px;
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-left: -4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.content {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.searchHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--terracotta-pale);
+  border: 1px solid var(--terracotta-muted);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-left: 4px;
+}
+
+/* Accordion */
+.accordion {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.item {
+  border-bottom: 1px solid var(--border);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemOpen {
+  background: var(--terracotta-pale);
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.questionText {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.itemOpen .questionText {
+  color: var(--terracotta);
+}
+
+.chevron {
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--terracotta);
+}
+
+.answer {
+  padding: 0 16px 14px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+/* Contact card */
+.contactCard {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+}
+
+.contactDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px;
+}
+
+.contactIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--terracotta-pale);
+  color: var(--terracotta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contactLabel {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+
+.contactValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--terracotta);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.contactMeta {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* Contact form */
+.formCard {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  letter-spacing: 0.2px;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 11px 13px;
+  font-size: 14px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a6156' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.select option[value=""] {
+  color: var(--ink-faint);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(201, 106, 58, 0.1);
+  background: white;
+}
+
+.sendBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark));
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Inter', system-ui, sans-serif;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 3px 10px rgba(201, 106, 58, 0.35);
+}
+
+.sendBtn:active {
+  opacity: 0.88;
+  transform: scale(0.98);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateY(24px);
+  background: #1a1410;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 18px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  width: calc(100% - 32px);
+  max-width: 358px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 100;
+}
+
+.toastVisible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.version {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: center;
+  padding: 8px 0;
+}

@@ -1,0 +1,100 @@
+.footer {
+  background: var(--ink);
+  color: var(--ink-faint);
+  margin-top: 80px;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 60px;
+  align-items: start;
+}
+
+.brand {
+  max-width: 280px;
+}
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--terracotta-light);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.tagline {
+  font-size: 14px;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--ink-muted);
+}
+
+.columns {
+  display: flex;
+  gap: 48px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.col h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.col a {
+  font-size: 14px;
+  color: var(--ink-faint);
+  transition: color 0.15s;
+}
+
+.col a:hover {
+  color: var(--terracotta-light);
+}
+
+.bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.made {
+  font-style: italic;
+  color: var(--terracotta-light);
+}
+
+@media (max-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .columns {
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+
+  .bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

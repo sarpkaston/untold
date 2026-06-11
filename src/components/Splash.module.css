@@ -1,0 +1,163 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #8B2500 0%, #c96a3a 45%, #e8926a 100%);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.splash.exit {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 40px
+  );
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 45%,
+    rgba(201,168,76,0.1) 0%,
+    transparent 70%);
+  animation: shimmerPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes shimmerPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bookIcon {
+  position: relative;
+  width: 64px;
+  height: 80px;
+  margin-bottom: 8px;
+}
+
+.bookPage {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform-origin: bottom center;
+  width: 44px;
+  height: 64px;
+  border-radius: 2px 8px 8px 2px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+}
+
+.bookPage:nth-child(1) {
+  transform: translateX(-50%) rotate(-12deg);
+  animation: pageOpen1 0.8s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.bookPage:nth-child(2) {
+  transform: translateX(-50%) rotate(-4deg);
+  animation: pageOpen2 0.8s 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.bookPage:nth-child(3) {
+  transform: translateX(-50%) rotate(4deg);
+  animation: pageOpen3 0.8s 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pageOpen1 { to { transform: translateX(-60%) rotate(-18deg); } }
+@keyframes pageOpen2 { to { transform: translateX(-50%) rotate(0deg); } }
+@keyframes pageOpen3 { to { transform: translateX(-38%) rotate(18deg); } }
+
+.logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 52px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -1px;
+  line-height: 1;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.slogan {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  font-style: italic;
+  color: #f0d078;
+  letter-spacing: 0.3px;
+  animation: sloganIn 0.6s 0.5s ease both;
+}
+
+@keyframes sloganIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sloganGlow {
+  animation: sloganIn 0.6s 0.5s ease both, goldGlow 2.2s 1.2s ease-in-out infinite;
+}
+
+@keyframes goldGlow {
+  0%, 100% {
+    text-shadow: 0 0 16px rgba(240,208,120,0.65), 0 0 32px rgba(201,168,76,0.35);
+  }
+  50% {
+    text-shadow: 0 0 28px rgba(255,225,140,1), 0 0 56px rgba(201,168,76,0.7), 0 0 80px rgba(201,168,76,0.3);
+  }
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  animation: sloganIn 0.4s 0.9s ease both;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.2); }
+}
+
+.sub {
+  position: absolute;
+  bottom: 40px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  text-transform: lowercase;
+  color: rgba(255,255,255,0.45);
+  font-style: italic;
+  animation: sloganIn 0.5s 1s ease both;
+}

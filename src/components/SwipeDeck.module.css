@@ -1,0 +1,322 @@
+.deck {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 16px 0;
+  min-height: 560px;
+}
+
+/* Background stacked cards */
+.bgCard {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  height: 480px;
+  border-radius: 20px;
+  transform-origin: bottom center;
+}
+
+/* Active card */
+.card {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  background: var(--warm-white);
+  box-shadow: 0 8px 32px rgba(26,20,16,0.18);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  will-change: transform;
+  z-index: 20;
+}
+
+.card.dragging {
+  cursor: grabbing;
+}
+
+.card.flying {
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.38s;
+  pointer-events: none;
+}
+
+.card:not(.dragging):not(.flying) {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Swipe badges */
+.badge {
+  position: absolute;
+  top: 20px;
+  z-index: 30;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 3px solid;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.badgeLike {
+  left: 20px;
+  color: #27ae60;
+  border-color: #27ae60;
+  background: rgba(39,174,96,0.1);
+  transform: rotate(-15deg);
+}
+
+.badgeNope {
+  right: 20px;
+  color: #e74c3c;
+  border-color: #e74c3c;
+  background: rgba(231,76,60,0.1);
+  transform: rotate(15deg);
+}
+
+/* Book cover */
+.cover {
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px 20px 20px 28px;
+}
+
+.coverGrain {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+.coverLines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.05) 0px,
+    rgba(255,255,255,0.05) 1px,
+    transparent 1px,
+    transparent 32px
+  );
+}
+
+.spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  filter: brightness(0.6);
+}
+
+.coverContent {
+  position: relative;
+  z-index: 2;
+}
+
+.coverCat {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 8px;
+}
+
+.coverTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.coverSub {
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.4;
+}
+
+.pageCount {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.5px;
+  background: rgba(0,0,0,0.15);
+  padding: 4px 10px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+/* Card body */
+.body {
+  padding: 18px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--terracotta-muted);
+  color: var(--terracotta-dark);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.authorMeta {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.preview {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.readBtn {
+  display: block;
+  text-align: center;
+  background: var(--terracotta);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.readBtn:active {
+  background: var(--terracotta-dark);
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px 0 8px;
+  width: 100%;
+}
+
+.actionBtn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.actionBtn:active {
+  transform: scale(0.9);
+  box-shadow: var(--shadow-sm);
+}
+
+.nopeBtn {
+  background: white;
+  color: #e74c3c;
+}
+
+.likeBtn {
+  background: var(--terracotta);
+  color: white;
+  width: 68px;
+  height: 68px;
+}
+
+.progress {
+  flex: 1;
+  text-align: center;
+}
+
+.progressText {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 400px;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.emptyIcon {
+  font-size: 52px;
+}
+
+.emptyText {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.emptySubtext {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.restartBtn {
+  margin-top: 12px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.restartBtn:active {
+  background: var(--terracotta-dark);
+}

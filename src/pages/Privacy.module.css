@@ -1,0 +1,364 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  background: var(--cream);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 56px;
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-left: -4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.content {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* KVKK Banner */
+.kvkkBanner {
+  display: flex;
+  gap: 14px;
+  background: var(--terracotta-pale);
+  border: 1px solid var(--terracotta-muted);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.kvkkTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.kvkkText {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+
+.kvkkLink {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--terracotta);
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-left: 4px;
+}
+
+.card {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Radio rows */
+.radioRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+
+.radioRow:last-child { border-bottom: none; }
+
+.radioRowActive { background: var(--terracotta-pale); }
+
+.radioLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: border-color 0.15s;
+}
+
+.radioChecked {
+  border-color: var(--terracotta);
+}
+
+.radioDot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--terracotta);
+}
+
+.radioLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.radioDesc {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+/* Toggle row */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.toggleText { flex: 1; }
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.toggleDesc {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: #d1d5db;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggleOn { background: var(--terracotta); }
+
+.knob {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggleOn .knob { transform: translateX(20px); }
+
+/* Cookie card */
+.cookieCard { padding: 16px; }
+
+.cookieText {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.cookieTypes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cookieItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--cream);
+  border-radius: 8px;
+}
+
+.cookieLabel {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.cookieStatus {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  padding: 2px 8px;
+  background: var(--border);
+  border-radius: 8px;
+}
+
+.cookieStatusActive {
+  color: #27ae60;
+  background: #eafaf1;
+}
+
+/* Delete button */
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 16px;
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+
+.deleteBtn:hover { background: #fff5f5; }
+
+.deleteSuccess {
+  padding: 14px 16px;
+}
+
+.deleteSuccessText {
+  font-size: 13px;
+  color: #27ae60;
+  line-height: 1.5;
+}
+
+/* Contact */
+.contact {
+  font-size: 13px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.contactLink {
+  color: var(--terracotta);
+  font-weight: 600;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,20,16,0.65);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--warm-white);
+  border-radius: 18px;
+  padding: 24px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modalTitle {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.modalText {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+}
+
+.modalCancel {
+  flex: 1;
+  padding: 12px;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.modalConfirm {
+  flex: 1;
+  padding: 12px;
+  background: #e74c3c;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+}

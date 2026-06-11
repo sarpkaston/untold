@@ -1,0 +1,162 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 247, 242, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.logoText {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: -0.5px;
+}
+
+.logoSub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+  font-style: italic;
+}
+
+.links {
+  display: flex;
+  list-style: none;
+  gap: 8px;
+  flex: 1;
+}
+
+.link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.link:hover {
+  color: var(--ink);
+  background: var(--terracotta-muted);
+}
+
+.link.active {
+  color: var(--terracotta);
+  background: var(--terracotta-pale);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.loginBtn {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: color 0.15s;
+}
+
+.loginBtn:hover {
+  color: var(--terracotta);
+}
+
+.signupBtn {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: var(--terracotta);
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.signupBtn:hover {
+  background: var(--terracotta-dark);
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-left: auto;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--ink-soft);
+  border-radius: 2px;
+}
+
+.mobileMenu {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px 20px;
+  border-top: 1px solid var(--border);
+  gap: 4px;
+}
+
+.mobileLink {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.mobileLink:hover {
+  background: var(--terracotta-pale);
+  color: var(--terracotta);
+}
+
+.mobileLinkAccent {
+  color: var(--terracotta);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .links,
+  .actions {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .inner {
+    gap: 0;
+  }
+}

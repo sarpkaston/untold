@@ -1,0 +1,155 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  background: var(--cream);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 56px;
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-left: -4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background: var(--warm-white);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 56px;
+  z-index: 10;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabActive {
+  color: var(--terracotta);
+  border-bottom-color: var(--terracotta);
+}
+
+/* Content */
+.content {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.meta {
+  margin-bottom: 20px;
+}
+
+.effectiveDate {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.intro {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  background: var(--terracotta-pale);
+  border-left: 3px solid var(--terracotta);
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+}
+
+.section {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.sectionHeading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.sectionText {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+/* Footer */
+.footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid var(--terracotta-muted);
+}
+
+.footerBox {
+  background: var(--terracotta-pale);
+  border: 1px solid var(--terracotta-muted);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footerText {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.footerLink {
+  font-weight: 700;
+  color: var(--terracotta);
+}
+
+.footerCompany {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
