@@ -878,3 +878,160 @@
   transition: background 0.15s;
 }
 .msgBtn:hover { background: var(--terracotta-dark, #8b2c0a); }
+
+/* ── Category + story title group ───────────── */
+.connectionCats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.catGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.connStoryTitle {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-style: italic;
+  text-decoration: none;
+  padding-left: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+.connStoryTitle:hover { color: var(--terracotta); text-decoration: underline; }
+
+/* ── Section divider title ───────────────────── */
+.connSectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 10px 20px 4px;
+  margin: 0;
+}
+
+/* ── Anon connection card ────────────────────── */
+.anonAvatar {
+  background: var(--ink-faint) !important;
+  font-size: 18px !important;
+  letter-spacing: 0;
+}
+
+.connectAnonBtn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.connectAnonBtn:hover { background: var(--terracotta-dark, #8b2c0a); }
+
+.reqSent {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Incoming request actions ────────────────── */
+.reqDesc {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin: 2px 0 0;
+}
+
+.reqActions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.acceptBtn {
+  padding: 6px 12px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rejectBtn {
+  padding: 6px 12px;
+  background: none;
+  color: var(--ink-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ── Bağlantıya Açık toggle ──────────────────── */
+.anonToggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--paper);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 14px 20px;
+}
+
+.anonToggleText { flex: 1; }
+
+.anonToggleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+
+.anonToggleDesc {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.toggle {
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--border);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggleOn { background: var(--terracotta); }
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+}
+
+.toggleOn .knob { left: 23px; }
