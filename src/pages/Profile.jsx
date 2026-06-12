@@ -18,12 +18,6 @@ export default function Profile() {
   const [myStories, setMyStories] = useState([]);
   const [shelfStories, setShelfStories] = useState([]);
 
-  // Edit profile
-  const [editMode, setEditMode] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editBio, setEditBio] = useState("");
-  const [saving, setSaving] = useState(false);
-
   // Story delete
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
@@ -63,7 +57,10 @@ export default function Profile() {
     if (!user) return;
     supabase.from("profiles").select("avatar_url, open_to_anon_connect").eq("id", user.id).single()
       .then(({ data }) => {
-        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        if (data?.avatar_url) {
+          const base = data.avatar_url.split("?")[0];
+          setAvatarUrl(base + "?t=" + Date.now());
+        }
         if (data?.open_to_anon_connect != null) setOpenToAnon(data.open_to_anon_connect);
       });
   }, [user]);
@@ -227,22 +224,6 @@ export default function Profile() {
     setConfirmDeleteId(null);
   }
 
-  function startEdit() {
-    setEditName(displayName);
-    setEditBio(bio);
-    setEditMode(true);
-  }
-
-  async function saveProfile() {
-    if (!editName.trim()) return;
-    setSaving(true);
-    await supabase.auth.updateUser({
-      data: { full_name: editName.trim(), bio: editBio.trim() },
-    });
-    setSaving(false);
-    setEditMode(false);
-  }
-
   async function startLiveStream() {
     if (!liveTitle.trim() || !user) return;
     setStartingLive(true);
@@ -313,38 +294,12 @@ export default function Profile() {
           )}
         </div>
 
-        {editMode ? (
-          <div className={styles.editForm}>
-            <input
-              className={styles.editInput}
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              placeholder="Ad Soyad"
-              maxLength={40}
-              autoFocus
-            />
-            <input
-              className={styles.editInput}
-              value={editBio}
-              onChange={(e) => setEditBio(e.target.value)}
-              placeholder="Kısa bio… (isteğe bağlı)"
-              maxLength={100}
-            />
-            <div className={styles.editActions}>
-              <button className={styles.cancelEditBtn} onClick={() => setEditMode(false)}>İptal</button>
-              <button className={styles.saveEditBtn} onClick={saveProfile} disabled={saving || !editName.trim()}>
-                {saving ? "Kaydediliyor…" : "Kaydet"}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.profileText}>
-            <h1 className={styles.name}>{displayName}</h1>
-            <p className={styles.username}>{username}</p>
-            {bio && <p className={styles.bio}>{bio}</p>}
-            <button className={styles.editProfileBtn} onClick={startEdit}>Profili Düzenle</button>
-          </div>
-        )}
+        <div className={styles.profileText}>
+          <h1 className={styles.name}>{displayName}</h1>
+          <p className={styles.username}>{username}</p>
+          {bio && <p className={styles.bio}>{bio}</p>}
+          <button className={styles.editProfileBtn} onClick={() => navigate("/ayarlar")}>Profili Düzenle</button>
+        </div>
 
         <div className={styles.headerLive}>
           <button className={styles.liveBtn} onClick={() => { setShowLiveModal(true); setLiveError(""); }}>

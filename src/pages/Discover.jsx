@@ -6,9 +6,10 @@ import { useApp } from "../context/AppContext";
 import styles from "./Discover.module.css";
 
 export default function Discover() {
-  const { isLiked, toggleLike } = useApp();
+  const { user, isLiked, toggleLike } = useApp();
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [myCats, setMyCats] = useState(new Set());
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -24,6 +25,16 @@ export default function Discover() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("stories")
+      .select("category")
+      .eq("user_id", user.id)
+      .eq("published", true)
+      .then(({ data }) => setMyCats(new Set((data || []).map((s) => s.category.toLowerCase()))));
+  }, [user]);
 
   return (
     <div className={styles.page}>
@@ -55,6 +66,12 @@ export default function Discover() {
               story={story}
               liked={isLiked(story.id)}
               onLike={toggleLike}
+              isConnected={
+                !story.isAnonymous &&
+                story.userId &&
+                myCats.size > 0 &&
+                myCats.has(story.category?.toLowerCase())
+              }
             />
           ))
         )}
@@ -63,7 +80,7 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike }) {
+function SlideCard({ story, liked, onLike, isConnected }) {
   return (
     <div className={styles.slide}>
       <div className={styles.slideBg} style={{ background: story.coverColor }} />
@@ -76,7 +93,7 @@ function SlideCard({ story, liked, onLike }) {
           onClick={() => onLike(story.id)}
         >
           <HeartIcon filled={liked} />
-          <span className={styles.slideActionLabel}>{story.likes + (liked ? 1 : 0)}</span>
+          <span className={styles.slideActionLabel}>{story.likes}</span>
         </button>
         <Link to={`/hikaye/${story.id}`} className={styles.slideActionBtn}>
           <CommentIcon />
@@ -90,8 +107,24 @@ function SlideCard({ story, liked, onLike }) {
         {story.subtitle && <p className={styles.slideSubtitle}>{story.subtitle}</p>}
         <div className={styles.slideAuthorRow}>
           <div className={styles.slideAvatar}>{story.authorAvatar}</div>
-          <span className={styles.slideAuthorName}>{story.author}</span>
+          <div className={styles.slideAuthorInfo}>
+            {!story.isAnonymous && story.userId ? (
+              <Link to={`/kullanici/${story.userId}`} className={styles.slideAuthorName}>
+                {story.author}
+              </Link>
+            ) : (
+              <span className={styles.slideAuthorName}>{story.author}</span>
+            )}
+            {isConnected && (
+              <span className={styles.slideConnectedBadge}>Bağlantın · {story.category}</span>
+            )}
+          </div>
         </div>
+        {story.preview && (
+          <p className={styles.slidePreview}>
+            {story.preview.slice(0, 140).trim()}…
+          </p>
+        )}
       </div>
 
       <Link to={`/hikaye/${story.id}`} className={styles.slideReadBtn}>

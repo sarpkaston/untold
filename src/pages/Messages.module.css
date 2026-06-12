@@ -194,3 +194,48 @@
   padding: 1px 7px;
   flex-shrink: 0;
 }
+
+.convDeleteRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: #fff5f5;
+  border-bottom: 1px solid rgba(231,76,60,0.15);
+  min-height: 72px;
+}
+
+.convDeleteLabel {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.convDeleteActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.convDeleteCancel {
+  background: var(--border);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.convDeleteConfirm {
+  background: #e74c3c;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useApp } from "../context/AppContext";
@@ -58,6 +58,17 @@ export default function Messages() {
     setLoading(false);
   }
 
+  async function deleteConversation(partnerId) {
+    await supabase
+      .from("messages")
+      .delete()
+      .or(
+        `and(from_user_id.eq.${user.id},to_user_id.eq.${partnerId}),` +
+        `and(from_user_id.eq.${partnerId},to_user_id.eq.${user.id})`
+      );
+    setConversations((prev) => prev.filter((c) => c.partnerId !== partnerId));
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -84,43 +95,79 @@ export default function Messages() {
         </div>
       ) : (
         <div className={styles.list}>
-          {conversations.map((conv) => {
-            const name = conv.profile.full_name || "Kullanıcı";
-            const initials = getInitials(name);
-            const isMine = conv.lastMessage.from_user_id === user.id;
-            const preview = conv.lastMessage.content;
-            const time = new Date(conv.lastMessage.created_at).toLocaleTimeString("tr-TR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            return (
-              <button
-                key={conv.partnerId}
-                className={styles.convRow}
-                onClick={() => navigate(`/mesajlar/${conv.partnerId}`)}
-              >
-                {conv.profile.avatar_url ? (
-                  <img src={conv.profile.avatar_url} className={styles.convAvatar} alt={name} />
-                ) : (
-                  <div className={styles.convAvatar}>{initials}</div>
-                )}
-                <div className={styles.convBody}>
-                  <div className={styles.convTop}>
-                    <span className={styles.convName}>{name}</span>
-                    <span className={styles.convTime}>{time}</span>
-                  </div>
-                  <div className={styles.convBottom}>
-                    <span className={`${styles.convPreview} ${conv.unread > 0 ? styles.convUnread : ""}`}>
-                      {isMine ? "Sen: " : ""}{preview.length > 45 ? preview.slice(0, 45) + "…" : preview}
-                    </span>
-                    {conv.unread > 0 && <span className={styles.convBadge}>{conv.unread}</span>}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+          {conversations.map((conv) => (
+            <ConvItem
+              key={conv.partnerId}
+              conv={conv}
+              user={user}
+              onOpen={(id) => navigate(`/mesajlar/${id}`)}
+              onDelete={deleteConversation}
+            />
+          ))}
         </div>
       )}
     </div>
+  );
+}
+
+function ConvItem({ conv, user, onOpen, onDelete }) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const pressTimer = useRef(null);
+
+  function handleTouchStart() {
+    pressTimer.current = setTimeout(() => setShowConfirm(true), 550);
+  }
+  function handleTouchEnd() {
+    clearTimeout(pressTimer.current);
+  }
+
+  const name = conv.profile.full_name || "Kullanıcı";
+  const initials = getInitials(name);
+  const isMine = conv.lastMessage.from_user_id === user.id;
+  const preview = conv.lastMessage.content;
+  const time = new Date(conv.lastMessage.created_at).toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  if (showConfirm) {
+    return (
+      <div className={styles.convDeleteRow}>
+        <span className={styles.convDeleteLabel}>"{name}" sohbetini sil?</span>
+        <div className={styles.convDeleteActions}>
+          <button className={styles.convDeleteCancel} onClick={() => setShowConfirm(false)}>İptal</button>
+          <button className={styles.convDeleteConfirm} onClick={() => onDelete(conv.partnerId)}>Sil</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      className={styles.convRow}
+      onClick={() => onOpen(conv.partnerId)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchEnd}
+      onContextMenu={(e) => { e.preventDefault(); setShowConfirm(true); }}
+    >
+      {conv.profile.avatar_url ? (
+        <img src={conv.profile.avatar_url} className={styles.convAvatar} alt={name} />
+      ) : (
+        <div className={styles.convAvatar}>{initials}</div>
+      )}
+      <div className={styles.convBody}>
+        <div className={styles.convTop}>
+          <span className={styles.convName}>{name}</span>
+          <span className={styles.convTime}>{time}</span>
+        </div>
+        <div className={styles.convBottom}>
+          <span className={`${styles.convPreview} ${conv.unread > 0 ? styles.convUnread : ""}`}>
+            {isMine ? "Sen: " : ""}{preview.length > 45 ? preview.slice(0, 45) + "…" : preview}
+          </span>
+          {conv.unread > 0 && <span className={styles.convBadge}>{conv.unread}</span>}
+        </div>
+      </div>
+    </button>
   );
 }
