@@ -95,7 +95,7 @@ export default function Discover() {
                 myCats.size > 0 &&
                 myCats.has(story.category?.toLowerCase())
               }
-              avatarUrl={avatarMap[story.userId] || null}
+              avatarUrl={story.isAnonymous ? null : (avatarMap[story.userId] || null)}
             />
           ))
         )}

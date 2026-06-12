@@ -94,7 +94,7 @@ export default function Write() {
 
     const realName = user.user_metadata?.full_name || user.email.split("@")[0];
     const authorName = isAnonymous ? "Anonim" : realName;
-    let authorAvatar = isAnonymous ? "??" : getInitials(realName);
+    let authorAvatar = isAnonymous ? "?" : getInitials(realName);
     if (!isAnonymous) {
       const { data: profileData } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).single();
       if (profileData?.avatar_url) authorAvatar = profileData.avatar_url;

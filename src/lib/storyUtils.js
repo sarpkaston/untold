@@ -74,7 +74,7 @@ export function mapSupabaseStory(s) {
     title: s.title,
     subtitle: s.subtitle || "",
     author: s.is_anonymous ? "Anonim" : s.author_name,
-    authorAvatar: s.is_anonymous ? "??" : s.author_avatar,
+    authorAvatar: s.is_anonymous ? "?" : s.author_avatar,
     authorBio: "",
     coverColor: getCoverColor(s.category),
     category: s.category,
