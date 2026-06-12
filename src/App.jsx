@@ -20,6 +20,7 @@ import UserProfile from "./pages/UserProfile";
 import Settings from "./pages/Settings";
 import Messages from "./pages/Messages";
 import Thread from "./pages/Thread";
+import Admin from "./pages/Admin";
 
 function AppInner() {
   const { user, authLoading } = useApp();
@@ -79,6 +80,7 @@ function AppRoutes() {
           <Route path="/ayarlar" element={<Settings />} />
           <Route path="/mesajlar" element={<Messages />} />
           <Route path="/mesajlar/:userId" element={<Thread />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

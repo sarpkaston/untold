@@ -1,0 +1,558 @@
+/* ── Page ────────────────────────────────────────── */
+.page {
+  min-height: 100dvh;
+  background: #0f0f14;
+  color: #e8e6e1;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 40px;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 52px 20px 16px;
+  background: #18181f;
+  border-bottom: 1px solid #2a2a36;
+}
+
+.backBtn {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 8px;
+  color: #e8e6e1;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 2px;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #888;
+  margin: 0;
+}
+
+.badge {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(193, 68, 14, 0.2);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 20px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+
+/* ── Tab Bar ─────────────────────────────────────── */
+.tabBar {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: #18181f;
+  border-bottom: 1px solid #2a2a36;
+  padding: 0 8px;
+  gap: 2px;
+}
+.tabBar::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #666;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.tabActive {
+  color: #f97316;
+  border-bottom-color: #f97316;
+}
+
+.tab span:first-child { font-size: 18px; }
+
+/* ── Content ─────────────────────────────────────── */
+.content {
+  padding: 20px 16px 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── Stats ───────────────────────────────────────── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.statCard {
+  background: #18181f;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #2a2a36;
+}
+
+.statIcon { font-size: 22px; margin-bottom: 4px; }
+
+.statValue {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.catSection {
+  grid-column: 1 / -1;
+  background: #18181f;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #2a2a36;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 4px;
+}
+
+.catRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.catName {
+  font-size: 13px;
+  color: #e8e6e1;
+  min-width: 100px;
+}
+
+.catBar {
+  flex: 1;
+  height: 6px;
+  background: #2a2a36;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.catBarFill {
+  height: 100%;
+  background: #f97316;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.catCount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  min-width: 24px;
+  text-align: right;
+}
+
+/* ── Common list ─────────────────────────────────── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listCount {
+  font-size: 11px;
+  color: #555;
+  margin: 0 0 12px;
+}
+
+/* ── Search + controls ───────────────────────────── */
+.searchInput {
+  width: 100%;
+  background: #18181f;
+  border: 1px solid #2a2a36;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #e8e6e1;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: #f97316; }
+.searchInput::placeholder { color: #444; }
+
+.storiesControls {
+  display: flex;
+  gap: 8px;
+}
+
+.sortSelect {
+  background: #18181f;
+  border: 1px solid #2a2a36;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #e8e6e1;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Reports ─────────────────────────────────────── */
+.reportCard {
+  background: #18181f;
+  border: 1px solid #2a2a36;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reportCardHigh {
+  border-color: rgba(220, 38, 38, 0.5);
+  background: rgba(127, 29, 29, 0.12);
+}
+
+.reportHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.reportStoryTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 3px;
+  line-height: 1.35;
+}
+
+.reportMeta {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+.reportCountBadge {
+  background: #2a2a36;
+  color: #888;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 2px 10px;
+  flex-shrink: 0;
+}
+
+.badgeHigh {
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+}
+
+.reportReasons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reportReason {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.reasonTag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f97316;
+  flex: 1;
+}
+
+.reportDate {
+  font-size: 11px;
+  color: #555;
+}
+
+.dismissBtn {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  transition: color 0.15s;
+}
+.dismissBtn:hover { color: #f87171; }
+
+.deleteStoryBtn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 10px;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+}
+.deleteStoryBtn:hover { background: rgba(220, 38, 38, 0.25); }
+.deleteStoryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Users ───────────────────────────────────────── */
+.userRow {
+  background: #18181f;
+  border: 1px solid #2a2a36;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userBanned {
+  opacity: 0.55;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.userAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #2a2a36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #888;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.userAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.userInfo { flex: 1; min-width: 0; }
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.userMeta {
+  font-size: 11px;
+  color: #555;
+  margin: 0;
+}
+
+.bannedTag {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.userActions { flex-shrink: 0; }
+
+.banBtn {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+.unbanBtn {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  color: #4ade80;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+/* ── Stories ─────────────────────────────────────── */
+.storyRow {
+  background: #18181f;
+  border: 1px solid #2a2a36;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.storyFlagged {
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+.storyInfo { flex: 1; min-width: 0; }
+
+.storyTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.storyMeta {
+  font-size: 11px;
+  color: #555;
+  margin: 0 0 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storyBadges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.07);
+  color: #888;
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+.badgeRed {
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
+}
+
+.draftTag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+}
+
+.deleteBtn {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.deleteBtn:hover { background: rgba(220, 38, 38, 0.22); }
+.deleteBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Spinner ─────────────────────────────────────── */
+.spinner {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 0;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f97316;
+  opacity: 0.6;
+  animation: dotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.2; }
+}
+
+/* ── Empty ───────────────────────────────────────── */
+.emptyText {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  padding: 48px 0;
+  font-style: italic;
+}
