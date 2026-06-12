@@ -982,7 +982,15 @@
   cursor: pointer;
 }
 
-/* ── Bağlantıya Açık toggle ──────────────────── */
+.anonNote {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+  padding: 4px 20px 10px;
+  margin: 0;
+}
+
+/* ── Bağlantıya Açık toggle (kaldırıldı, CSS korundu) ── */
 .anonToggleRow {
   display: flex;
   align-items: center;

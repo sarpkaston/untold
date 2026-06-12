@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useApp } from "../context/AppContext";
 import { getInitials } from "../lib/storyUtils";
@@ -7,6 +7,8 @@ import styles from "./Thread.module.css";
 
 export default function Thread() {
   const { userId: partnerId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isAnon = searchParams.get("anon") === "1";
   const { user } = useApp();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -97,8 +99,8 @@ export default function Thread() {
     setSending(false);
   }
 
-  const partnerName = partner?.full_name || "Kullanıcı";
-  const partnerInitials = getInitials(partnerName);
+  const partnerName = isAnon ? "Anonim" : (partner?.full_name || "Kullanıcı");
+  const partnerInitials = isAnon ? "?" : getInitials(partnerName);
 
   return (
     <div className={styles.page}>
@@ -109,7 +111,7 @@ export default function Thread() {
           </svg>
         </button>
         <div className={styles.partnerInfo}>
-          {partner?.avatar_url ? (
+          {!isAnon && partner?.avatar_url ? (
             <img src={partner.avatar_url} className={styles.partnerAvatar} alt={partnerName} />
           ) : (
             <div className={styles.partnerAvatar}>{partnerInitials}</div>

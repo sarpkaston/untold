@@ -28,10 +28,6 @@ export default function Profile() {
   const [connections, setConnections] = useState([]);
   const [connectionsLoading, setConnectionsLoading] = useState(false);
   const [anonConnections, setAnonConnections] = useState([]);
-  const [anonRequestsSent, setAnonRequestsSent] = useState({});
-  const [pendingAnonRequests, setPendingAnonRequests] = useState([]);
-  const [openToAnon, setOpenToAnon] = useState(false);
-  const [hasAnonStories, setHasAnonStories] = useState(false);
 
   // Live modals
   const [showLiveModal, setShowLiveModal] = useState(false);
@@ -52,16 +48,15 @@ export default function Profile() {
   const bio = user?.user_metadata?.bio || "";
   const initials = getInitials(displayName);
 
-  // Load avatar + open_to_anon_connect
+  // Load avatar
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("avatar_url, open_to_anon_connect").eq("id", user.id).single()
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).single()
       .then(({ data }) => {
         if (data?.avatar_url) {
           const base = data.avatar_url.split("?")[0];
           setAvatarUrl(base + "?t=" + Date.now());
         }
-        if (data?.open_to_anon_connect != null) setOpenToAnon(data.open_to_anon_connect);
       });
   }, [user]);
 
@@ -76,7 +71,6 @@ export default function Profile() {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setMyStories(data || []);
-        setHasAnonStories((data || []).some((s) => s.is_anonymous));
       });
   }, [user]);
 
@@ -113,110 +107,53 @@ export default function Profile() {
       const myCats = new Set((myStoriesData || []).map((s) => s.category.toLowerCase()));
       if (myCats.size === 0) { setConnectionsLoading(false); return; }
 
-      // Anonim olmayan hikayelerden bağlantılar (id + title dahil)
       const { data: otherStories } = await supabase
         .from("stories")
-        .select("user_id, author_name, category, id, title")
+        .select("user_id, author_name, category, id, title, is_anonymous")
         .eq("published", true)
-        .eq("is_anonymous", false)
         .neq("user_id", user.id);
 
       const userMap = {};
       (otherStories || []).forEach((s) => {
-        if (!userMap[s.user_id]) {
-          userMap[s.user_id] = { user_id: s.user_id, author_name: s.author_name, cats: new Set(), stories: {} };
-        }
         const cat = s.category.toLowerCase();
-        userMap[s.user_id].cats.add(cat);
-        if (!userMap[s.user_id].stories[cat]) {
-          userMap[s.user_id].stories[cat] = { id: s.id, title: s.title };
+        if (!myCats.has(cat)) return;
+        if (!userMap[s.user_id]) {
+          userMap[s.user_id] = {
+            user_id: s.user_id,
+            realName: null,
+            nonAnonCats: new Set(),
+            anonCats: new Set(),
+            stories: {},
+          };
+        }
+        if (s.is_anonymous) {
+          userMap[s.user_id].anonCats.add(cat);
+        } else {
+          userMap[s.user_id].nonAnonCats.add(cat);
+          if (!userMap[s.user_id].realName) userMap[s.user_id].realName = s.author_name;
+          if (!userMap[s.user_id].stories[cat]) userMap[s.user_id].stories[cat] = { id: s.id, title: s.title };
         }
       });
 
-      const matches = Object.values(userMap)
-        .map((u) => {
-          const common = [...u.cats].filter((c) => myCats.has(c));
-          return { user_id: u.user_id, author_name: u.author_name, commonCats: common, stories: u.stories };
-        })
-        .filter((u) => u.commonCats.length > 0)
-        .sort((a, b) => b.commonCats.length - a.commonCats.length)
-        .slice(0, 25);
+      const regularMatches = [];
+      const anonMatches = [];
 
-      setConnections(matches);
-      const regularUserIds = new Set(matches.map((m) => m.user_id));
+      Object.values(userMap).forEach((u) => {
+        if (u.nonAnonCats.size > 0) {
+          regularMatches.push({ user_id: u.user_id, author_name: u.realName, commonCats: [...u.nonAnonCats], stories: u.stories });
+        } else {
+          anonMatches.push({ user_id: u.user_id, commonCats: [...u.anonCats] });
+        }
+      });
 
-      // Anonim bağlantı sistemi — paralel yükle
-      const [{ data: anonProfiles }, { data: sentReqs }, { data: incomingReqs }] = await Promise.all([
-        supabase.from("profiles").select("id").eq("open_to_anon_connect", true).neq("id", user.id),
-        supabase.from("anon_connect_requests").select("to_user_id, status").eq("from_user_id", user.id),
-        supabase.from("anon_connect_requests").select("id, from_user_id, created_at").eq("to_user_id", user.id).eq("status", "pending"),
-      ]);
-
-      // Gönderilen istek durumları
-      const sentMap = {};
-      (sentReqs || []).forEach((r) => { sentMap[r.to_user_id] = r.status; });
-      setAnonRequestsSent(sentMap);
-
-      // Regular bağlantılarda olmayan anonim yazarlar
-      const anonUserIds = (anonProfiles || []).map((p) => p.id).filter((id) => !regularUserIds.has(id));
-
-      if (anonUserIds.length > 0) {
-        const { data: anonStories } = await supabase
-          .from("stories").select("user_id, category").eq("published", true).in("user_id", anonUserIds);
-
-        const anonMap = {};
-        (anonStories || []).forEach((s) => {
-          if (!anonMap[s.user_id]) anonMap[s.user_id] = new Set();
-          anonMap[s.user_id].add(s.category.toLowerCase());
-        });
-
-        setAnonConnections(
-          Object.entries(anonMap)
-            .map(([uid, cats]) => ({ user_id: uid, commonCats: [...cats].filter((c) => myCats.has(c)) }))
-            .filter((u) => u.commonCats.length > 0)
-        );
-      } else {
-        setAnonConnections([]);
-      }
-
-      // Gelen bekleyen istekler — isim yükle
-      if (incomingReqs && incomingReqs.length > 0) {
-        const { data: fromProfiles } = await supabase
-          .from("profiles").select("id, full_name").in("id", incomingReqs.map((r) => r.from_user_id));
-        const pMap = {};
-        (fromProfiles || []).forEach((p) => { pMap[p.id] = p.full_name || "Kullanıcı"; });
-        setPendingAnonRequests(incomingReqs.map((r) => ({ ...r, from_name: pMap[r.from_user_id] || "Kullanıcı" })));
-      } else {
-        setPendingAnonRequests([]);
-      }
-
+      setConnections(regularMatches.sort((a, b) => b.commonCats.length - a.commonCats.length).slice(0, 25));
+      setAnonConnections(anonMatches);
       setConnectionsLoading(false);
     }
 
     fetchConnections();
   }, [user]);
 
-  async function toggleOpenToAnon() {
-    const next = !openToAnon;
-    setOpenToAnon(next);
-    await supabase.from("profiles").update({ open_to_anon_connect: next }).eq("id", user.id);
-  }
-
-  async function sendAnonRequest(toUserId) {
-    setAnonRequestsSent((prev) => ({ ...prev, [toUserId]: "pending" }));
-    await supabase.from("anon_connect_requests").insert({ from_user_id: user.id, to_user_id: toUserId });
-  }
-
-  async function acceptAnonRequest(requestId, fromUserId) {
-    await supabase.from("anon_connect_requests").update({ status: "accepted" }).eq("id", requestId);
-    setPendingAnonRequests((prev) => prev.filter((r) => r.id !== requestId));
-    navigate(`/mesajlar/${fromUserId}`);
-  }
-
-  async function rejectAnonRequest(requestId) {
-    await supabase.from("anon_connect_requests").update({ status: "rejected" }).eq("id", requestId);
-    setPendingAnonRequests((prev) => prev.filter((r) => r.id !== requestId));
-  }
 
   async function deleteStory(id) {
     await supabase.from("stories").delete().eq("id", id);
@@ -434,58 +371,15 @@ export default function Profile() {
         {activeTab === "baglantilar" && (
           <div className={styles.connectionsTab}>
 
-            {/* Bağlantıya Açık toggle */}
-            {hasAnonStories && (
-              <div className={styles.anonToggleRow}>
-                <div className={styles.anonToggleText}>
-                  <p className={styles.anonToggleLabel}>Bağlantıya Açık</p>
-                  <p className={styles.anonToggleDesc}>Anonim kimliğinle bağlantı kurmak isteyenlere görün</p>
-                </div>
-                <button
-                  className={`${styles.toggle} ${openToAnon ? styles.toggleOn : ""}`}
-                  onClick={toggleOpenToAnon}
-                  role="switch"
-                  aria-checked={openToAnon}
-                >
-                  <span className={styles.knob} />
-                </button>
-              </div>
-            )}
-
             {connectionsLoading ? (
               <div className={styles.connLoading}>
                 {[0,1,2].map((i) => <span key={i} className={styles.connDot} style={{ animationDelay: `${i*0.2}s` }} />)}
               </div>
             ) : (
               <>
-                {/* Gelen anonim istekler */}
-                {pendingAnonRequests.length > 0 && (
-                  <>
-                    <p className={styles.connSectionTitle}>Gelen İstekler</p>
-                    {pendingAnonRequests.map((req) => (
-                      <div key={req.id} className={styles.connectionCard}>
-                        <div className={styles.connectionAvatar}>{getInitials(req.from_name)}</div>
-                        <div className={styles.connectionBody}>
-                          <p className={styles.connectionName}>{req.from_name}</p>
-                          <p className={styles.reqDesc}>Seninle bağlantı kurmak istiyor</p>
-                        </div>
-                        <div className={styles.reqActions}>
-                          <button className={styles.rejectBtn} onClick={() => rejectAnonRequest(req.id)}>Hayır</button>
-                          <button className={styles.acceptBtn} onClick={() => acceptAnonRequest(req.id, req.from_user_id)}>Kabul</button>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )}
-
                 {/* Boş durum */}
-                {connections.length === 0 && anonConnections.length === 0 && pendingAnonRequests.length === 0 && !hasAnonStories && (
+                {connections.length === 0 && anonConnections.length === 0 && (
                   <EmptyState emoji="🤝" title="Henüz eşleşme yok" desc="Hikaye yaz, aynı kategoriyi kullanan yazarlarla eşleş!" />
-                )}
-
-                {/* Eşleşmeler başlığı */}
-                {(connections.length > 0 || anonConnections.length > 0) && pendingAnonRequests.length > 0 && (
-                  <p className={styles.connSectionTitle}>Eşleşmeler</p>
                 )}
 
                 {/* Normal bağlantılar */}
@@ -521,33 +415,23 @@ export default function Profile() {
                 {anonConnections.length > 0 && (
                   <>
                     {connections.length > 0 && <p className={styles.connSectionTitle}>Anonim Yazarlar</p>}
-                    {anonConnections.map((a) => {
-                      const status = anonRequestsSent[a.user_id];
-                      return (
-                        <div key={a.user_id} className={styles.connectionCard}>
-                          <div className={`${styles.connectionAvatar} ${styles.anonAvatar}`}>?</div>
-                          <div className={styles.connectionBody}>
-                            <p className={styles.connectionName}>Anonim Yazar</p>
-                            <div className={styles.connectionBadges}>
-                              {a.commonCats.slice(0, 3).map((cat) => (
-                                <span key={cat} className={styles.catBadge}>{cat}</span>
-                              ))}
-                            </div>
+                    <p className={styles.anonNote}>Sen onları görebilirsin ama onlar seni göremez</p>
+                    {anonConnections.map((a) => (
+                      <div key={a.user_id} className={styles.connectionCard}>
+                        <div className={`${styles.connectionAvatar} ${styles.anonAvatar}`}>?</div>
+                        <div className={styles.connectionBody}>
+                          <p className={styles.connectionName}>Anonim</p>
+                          <div className={styles.connectionBadges}>
+                            {a.commonCats.slice(0, 3).map((cat) => (
+                              <span key={cat} className={styles.catBadge}>{cat}</span>
+                            ))}
                           </div>
-                          {status === "accepted" ? (
-                            <button className={styles.msgBtn} onClick={() => navigate(`/mesajlar/${a.user_id}`)} title="Sohbet">
-                              <ChatIcon />
-                            </button>
-                          ) : status === "pending" ? (
-                            <span className={styles.reqSent}>Gönderildi</span>
-                          ) : (
-                            <button className={styles.connectAnonBtn} onClick={() => sendAnonRequest(a.user_id)}>
-                              Bağlan
-                            </button>
-                          )}
                         </div>
-                      );
-                    })}
+                        <button className={styles.msgBtn} onClick={() => navigate(`/mesajlar/${a.user_id}?anon=1`)} title="Mesaj at">
+                          <ChatIcon />
+                        </button>
+                      </div>
+                    ))}
                   </>
                 )}
               </>
