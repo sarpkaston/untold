@@ -100,11 +100,21 @@ export default function Profile() {
     async function fetchConnections() {
       const { data: myStoriesData } = await supabase
         .from("stories")
-        .select("category")
+        .select("category, is_anonymous")
         .eq("user_id", user.id)
         .eq("published", true);
 
-      const myCats = new Set((myStoriesData || []).map((s) => s.category.toLowerCase()));
+      const myNonAnonCats = new Set();
+      const myAnonCats = new Set();
+      (myStoriesData || []).forEach((s) => {
+        const cat = s.category.toLowerCase();
+        if (s.is_anonymous) myAnonCats.add(cat);
+        else myNonAnonCats.add(cat);
+      });
+      // Kategoriler sadece anonim hikayelerde geçiyorsa (normal hikayelerde yoksa)
+      const myAnonOnlyCats = new Set([...myAnonCats].filter(c => !myNonAnonCats.has(c)));
+      const myCats = new Set([...myNonAnonCats, ...myAnonCats]);
+
       if (myCats.size === 0) { setConnectionsLoading(false); return; }
 
       const { data: otherStories } = await supabase
@@ -121,33 +131,54 @@ export default function Profile() {
           userMap[s.user_id] = {
             user_id: s.user_id,
             realName: null,
-            nonAnonCats: new Set(),
-            anonCats: new Set(),
+            nonAnonMatchCats: new Set(),
+            anonMatchCats: new Set(),
+            viaMyNonAnon: false,
+            viaMyAnonOnly: false,
             stories: {},
           };
         }
+        if (myNonAnonCats.has(cat)) userMap[s.user_id].viaMyNonAnon = true;
+        if (myAnonOnlyCats.has(cat)) userMap[s.user_id].viaMyAnonOnly = true;
         if (s.is_anonymous) {
-          userMap[s.user_id].anonCats.add(cat);
+          userMap[s.user_id].anonMatchCats.add(cat);
         } else {
-          userMap[s.user_id].nonAnonCats.add(cat);
+          userMap[s.user_id].nonAnonMatchCats.add(cat);
           if (!userMap[s.user_id].realName) userMap[s.user_id].realName = s.author_name;
           if (!userMap[s.user_id].stories[cat]) userMap[s.user_id].stories[cat] = { id: s.id, title: s.title };
         }
       });
 
       const regularMatches = [];
-      const anonMatches = [];
+      const anonFromMyAnonMatches = [];
 
       Object.values(userMap).forEach((u) => {
-        if (u.nonAnonCats.size > 0) {
-          regularMatches.push({ user_id: u.user_id, author_name: u.realName, commonCats: [...u.nonAnonCats], stories: u.stories });
-        } else {
-          anonMatches.push({ user_id: u.user_id, commonCats: [...u.anonCats] });
+        const theyAreAnon = u.nonAnonMatchCats.size === 0;
+        if (u.viaMyNonAnon) {
+          // Normal eşleşmeler: benim normal hikayelerimden
+          const cats = [...new Set([...u.nonAnonMatchCats, ...u.anonMatchCats])].filter(c => myNonAnonCats.has(c));
+          regularMatches.push({
+            user_id: u.user_id,
+            author_name: theyAreAnon ? "Anonim" : u.realName,
+            commonCats: cats,
+            stories: theyAreAnon ? {} : u.stories,
+            isAnonymous: theyAreAnon,
+          });
+        } else if (u.viaMyAnonOnly) {
+          // Anonim hikayemden eşleşmeler
+          const cats = [...new Set([...u.nonAnonMatchCats, ...u.anonMatchCats])].filter(c => myAnonOnlyCats.has(c));
+          anonFromMyAnonMatches.push({
+            user_id: u.user_id,
+            author_name: theyAreAnon ? "Anonim" : u.realName,
+            commonCats: cats,
+            stories: theyAreAnon ? {} : u.stories,
+            isAnonymous: theyAreAnon,
+          });
         }
       });
 
       setConnections(regularMatches.sort((a, b) => b.commonCats.length - a.commonCats.length).slice(0, 25));
-      setAnonConnections(anonMatches);
+      setAnonConnections(anonFromMyAnonMatches);
       setConnectionsLoading(false);
     }
 
@@ -382,52 +413,90 @@ export default function Profile() {
                   <EmptyState emoji="🤝" title="Henüz eşleşme yok" desc="Hikaye yaz, aynı kategoriyi kullanan yazarlarla eşleş!" />
                 )}
 
-                {/* Normal bağlantılar */}
-                {connections.map((c) => (
-                  <div key={c.user_id} className={styles.connectionCard}>
-                    <div className={styles.connectionAvatar} onClick={() => navigate(`/kullanici/${c.user_id}`)}>
-                      {getInitials(c.author_name)}
-                    </div>
-                    <div className={styles.connectionBody}>
-                      <p className={styles.connectionName} onClick={() => navigate(`/kullanici/${c.user_id}`)}>
-                        {c.author_name}
-                      </p>
-                      <div className={styles.connectionCats}>
-                        {c.commonCats.slice(0, 3).map((cat) => (
-                          <div key={cat} className={styles.catGroup}>
-                            <span className={styles.catBadge}>{cat}</span>
-                            {c.stories[cat] && (
-                              <Link to={`/hikaye/${c.stories[cat].id}`} className={styles.connStoryTitle}>
-                                {c.stories[cat].title}
-                              </Link>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <button className={styles.msgBtn} onClick={() => navigate(`/mesajlar/${c.user_id}`)} title="Mesaj at">
-                      <ChatIcon />
-                    </button>
-                  </div>
-                ))}
-
-                {/* Anonim yazarlar */}
-                {anonConnections.length > 0 && (
+                {/* Normal hikayelerden eşleşmeler */}
+                {connections.length > 0 && (
                   <>
-                    {connections.length > 0 && <p className={styles.connSectionTitle}>Anonim Yazarlar</p>}
-                    <p className={styles.anonNote}>Sen onları görebilirsin ama onlar seni göremez</p>
-                    {anonConnections.map((a) => (
-                      <div key={a.user_id} className={styles.connectionCard}>
-                        <div className={`${styles.connectionAvatar} ${styles.anonAvatar}`}>?</div>
+                    {anonConnections.length > 0 && <p className={styles.connSectionTitle}>Eşleşmeler</p>}
+                    {connections.map((c) => (
+                      <div key={c.user_id} className={styles.connectionCard}>
+                        <div
+                          className={`${styles.connectionAvatar} ${c.isAnonymous ? styles.anonAvatar : ""}`}
+                          onClick={c.isAnonymous ? undefined : () => navigate(`/kullanici/${c.user_id}`)}
+                        >
+                          {c.isAnonymous ? "?" : getInitials(c.author_name)}
+                        </div>
                         <div className={styles.connectionBody}>
-                          <p className={styles.connectionName}>Anonim</p>
-                          <div className={styles.connectionBadges}>
-                            {a.commonCats.slice(0, 3).map((cat) => (
-                              <span key={cat} className={styles.catBadge}>{cat}</span>
+                          <p
+                            className={styles.connectionName}
+                            onClick={c.isAnonymous ? undefined : () => navigate(`/kullanici/${c.user_id}`)}
+                            style={c.isAnonymous ? { cursor: "default" } : {}}
+                          >
+                            {c.author_name}
+                          </p>
+                          <div className={styles.connectionCats}>
+                            {c.commonCats.slice(0, 3).map((cat) => (
+                              <div key={cat} className={styles.catGroup}>
+                                <span className={styles.catBadge}>{cat}</span>
+                                {!c.isAnonymous && c.stories[cat] && (
+                                  <Link to={`/hikaye/${c.stories[cat].id}`} className={styles.connStoryTitle}>
+                                    {c.stories[cat].title}
+                                  </Link>
+                                )}
+                              </div>
                             ))}
                           </div>
                         </div>
-                        <button className={styles.msgBtn} onClick={() => navigate(`/mesajlar/${a.user_id}?anon=1`)} title="Mesaj at">
+                        <button
+                          className={styles.msgBtn}
+                          onClick={() => navigate(`/mesajlar/${c.user_id}${c.isAnonymous ? "?anon=1" : ""}`)}
+                          title="Mesaj at"
+                        >
+                          <ChatIcon />
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* Anonim hikayemden eşleşmeler */}
+                {anonConnections.length > 0 && (
+                  <>
+                    <p className={styles.connSectionTitle}>Anonim Hikayenden Eşleşenler</p>
+                    <p className={styles.anonNote}>Sen onları görebilirsin ama onlar seni göremez</p>
+                    {anonConnections.map((a) => (
+                      <div key={a.user_id} className={styles.connectionCard}>
+                        <div
+                          className={`${styles.connectionAvatar} ${a.isAnonymous ? styles.anonAvatar : ""}`}
+                          onClick={a.isAnonymous ? undefined : () => navigate(`/kullanici/${a.user_id}`)}
+                        >
+                          {a.isAnonymous ? "?" : getInitials(a.author_name)}
+                        </div>
+                        <div className={styles.connectionBody}>
+                          <p
+                            className={styles.connectionName}
+                            onClick={a.isAnonymous ? undefined : () => navigate(`/kullanici/${a.user_id}`)}
+                            style={a.isAnonymous ? { cursor: "default" } : {}}
+                          >
+                            {a.author_name}
+                          </p>
+                          <div className={styles.connectionCats}>
+                            {a.commonCats.slice(0, 3).map((cat) => (
+                              <div key={cat} className={styles.catGroup}>
+                                <span className={styles.catBadge}>{cat}</span>
+                                {!a.isAnonymous && a.stories[cat] && (
+                                  <Link to={`/hikaye/${a.stories[cat].id}`} className={styles.connStoryTitle}>
+                                    {a.stories[cat].title}
+                                  </Link>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          className={styles.msgBtn}
+                          onClick={() => navigate(`/mesajlar/${a.user_id}${a.isAnonymous ? "?anon=1" : ""}`)}
+                          title="Mesaj at"
+                        >
                           <ChatIcon />
                         </button>
                       </div>
