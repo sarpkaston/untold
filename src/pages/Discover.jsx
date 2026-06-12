@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { mapSupabaseStory } from "../lib/storyUtils";
+import { mapSupabaseStory, getCoverGradient } from "../lib/storyUtils";
 import { useApp } from "../context/AppContext";
 import styles from "./Discover.module.css";
 
@@ -107,7 +107,7 @@ export default function Discover() {
 function SlideCard({ story, liked, onLike, isConnected, avatarUrl }) {
   return (
     <div className={styles.slide}>
-      <div className={styles.slideBg} style={{ background: story.coverColor }} />
+      <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
       <div className={styles.slideGrain} />
       <div className={styles.slideGradient} />
 
