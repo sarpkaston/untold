@@ -2,39 +2,55 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { mapSupabaseStory, getInitials } from "../lib/storyUtils";
+import { useApp } from "../context/AppContext";
 import styles from "./UserProfile.module.css";
 
 export default function UserProfile() {
   const { userId } = useParams();
+  const { user } = useApp();
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authorName, setAuthorName] = useState("");
-  const [authorAvatar, setAuthorAvatar] = useState("");
+  const [authorUsername, setAuthorUsername] = useState("");
+  const [authorBio, setAuthorBio] = useState("");
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState(null);
   const [totalLikes, setTotalLikes] = useState(0);
+  const [myCats, setMyCats] = useState(new Set());
 
   useEffect(() => {
     async function fetchProfile() {
-      const { data, error } = await supabase
-        .from("stories")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("published", true)
-        .eq("is_anonymous", false)
-        .order("created_at", { ascending: false });
+      const [{ data: profileData }, { data: storiesData }] = await Promise.all([
+        supabase.from("profiles").select("full_name, username, bio, avatar_url").eq("id", userId).single(),
+        supabase.from("stories").select("*").eq("user_id", userId).eq("published", true).eq("is_anonymous", false).order("created_at", { ascending: false }),
+      ]);
 
-      if (!error && data && data.length > 0) {
-        const name = data[0].author_name;
-        const avatar = data[0].author_avatar || getInitials(name);
-        setAuthorName(name);
-        setAuthorAvatar(avatar);
-        setTotalLikes(data.reduce((sum, s) => sum + (s.likes || 0), 0));
-        setStories(data.map(mapSupabaseStory));
+      if (profileData) {
+        setAuthorName(profileData.full_name || "");
+        setAuthorUsername(profileData.username || "");
+        setAuthorBio(profileData.bio || "");
+        if (profileData.avatar_url) {
+          const base = profileData.avatar_url.split("?")[0];
+          setAuthorAvatarUrl(base + "?t=" + Math.floor(Date.now() / 300000));
+        }
       }
+
+      if (storiesData && storiesData.length > 0) {
+        if (!profileData?.full_name) setAuthorName(storiesData[0].author_name || "");
+        setTotalLikes(storiesData.reduce((sum, s) => sum + (s.likes || 0), 0));
+        setStories(storiesData.map(mapSupabaseStory));
+      }
+
       setLoading(false);
     }
 
     if (userId) fetchProfile();
   }, [userId]);
+
+  useEffect(() => {
+    if (!user || user.id === userId) return;
+    supabase.from("stories").select("category").eq("user_id", user.id).eq("published", true)
+      .then(({ data }) => setMyCats(new Set((data || []).map(s => s.category?.toLowerCase()))));
+  }, [user, userId]);
 
   if (loading) {
     return (
@@ -57,15 +73,33 @@ export default function UserProfile() {
     );
   }
 
+  const sharedCat = user && user.id !== userId
+    ? stories.find(s => myCats.has(s.category?.toLowerCase()))?.category || null
+    : null;
+
+  const initials = getInitials(authorName);
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <Link to="/" className={styles.backBtn}>←</Link>
         <div className={styles.coverBg} />
         <div className={styles.profileInfo}>
-          <div className={styles.avatar}>{authorAvatar}</div>
+          {authorAvatarUrl ? (
+            <img src={authorAvatarUrl} className={styles.avatar} alt={authorName} style={{ objectFit: "cover" }} />
+          ) : (
+            <div className={styles.avatar}>{initials}</div>
+          )}
           <h1 className={styles.name}>{authorName}</h1>
-          <p className={styles.bio}>Untold yazarı</p>
+          {authorUsername ? <p className={styles.username}>@{authorUsername}</p> : null}
+          {authorBio ? (
+            <p className={styles.bio}>{authorBio}</p>
+          ) : (
+            <p className={styles.bio}>Untold yazarı</p>
+          )}
+          {sharedCat && (
+            <span className={styles.connectionBadge}>Bağlantın · {sharedCat}</span>
+          )}
         </div>
       </div>
 

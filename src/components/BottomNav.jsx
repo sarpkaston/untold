@@ -27,6 +27,8 @@ export default function BottomNav() {
     { to: "/profil", label: "Profil", icon: <PersonIcon /> },
   ];
 
+  if (pathname.startsWith("/canli/")) return null;
+
   return (
     <nav className={styles.nav}>
       {tabs.map((tab) => {

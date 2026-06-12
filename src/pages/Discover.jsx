@@ -10,21 +10,33 @@ export default function Discover() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myCats, setMyCats] = useState(new Set());
-  const [likeDeltaMap, setLikeDeltaMap] = useState({});
+  const [avatarMap, setAvatarMap] = useState({});
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
 
-    supabase
-      .from("stories")
-      .select("*, story_comments(count)")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-      .limit(25)
-      .then(({ data, error }) => {
-        setStories(!error && data ? data.map(mapSupabaseStory) : []);
-        setLoading(false);
-      });
+    async function load() {
+      const { data, error } = await supabase
+        .from("stories")
+        .select("*, story_comments(count)")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        .limit(25);
+
+      setStories(!error && data ? data.map(mapSupabaseStory) : []);
+      setLoading(false);
+
+      if (!error && data) {
+        const userIds = [...new Set(data.filter(s => !s.is_anonymous && s.user_id).map(s => s.user_id))];
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase.from("profiles").select("id, avatar_url").in("id", userIds);
+          const map = {};
+          (profiles || []).forEach(p => { if (p.avatar_url) map[p.id] = p.avatar_url; });
+          setAvatarMap(map);
+        }
+      }
+    }
+    load();
   }, []);
 
   useEffect(() => {
@@ -40,10 +52,10 @@ export default function Discover() {
   async function handleLike(storyId) {
     const wasLiked = isLiked(storyId);
     const delta = wasLiked ? -1 : 1;
-    setLikeDeltaMap((prev) => ({ ...prev, [storyId]: (prev[storyId] || 0) + delta }));
+    setStories(prev => prev.map(s => s.id === storyId ? { ...s, likes: (s.likes || 0) + delta } : s));
     const { error } = await toggleLike(storyId);
     if (error) {
-      setLikeDeltaMap((prev) => ({ ...prev, [storyId]: (prev[storyId] || 0) - delta }));
+      setStories(prev => prev.map(s => s.id === storyId ? { ...s, likes: (s.likes || 0) - delta } : s));
     }
   }
 
@@ -83,7 +95,7 @@ export default function Discover() {
                 myCats.size > 0 &&
                 myCats.has(story.category?.toLowerCase())
               }
-              likeDelta={likeDeltaMap[story.id] || 0}
+              avatarUrl={avatarMap[story.userId] || null}
             />
           ))
         )}
@@ -92,7 +104,7 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike, isConnected, likeDelta }) {
+function SlideCard({ story, liked, onLike, isConnected, avatarUrl }) {
   return (
     <div className={styles.slide}>
       <div className={styles.slideBg} style={{ background: story.coverColor }} />
@@ -105,7 +117,7 @@ function SlideCard({ story, liked, onLike, isConnected, likeDelta }) {
           onClick={() => onLike(story.id)}
         >
           <HeartIcon filled={liked} />
-          <span className={styles.slideActionLabel}>{(story.likes || 0) + likeDelta}</span>
+          <span className={styles.slideActionLabel}>{story.likes || 0}</span>
         </button>
         <Link to={`/hikaye/${story.id}`} className={styles.slideActionBtn}>
           <CommentIcon />
@@ -118,7 +130,11 @@ function SlideCard({ story, liked, onLike, isConnected, likeDelta }) {
         <h2 className={styles.slideTitle}>{story.title}</h2>
         {story.subtitle && <p className={styles.slideSubtitle}>{story.subtitle}</p>}
         <div className={styles.slideAuthorRow}>
-          <div className={styles.slideAvatar}>{story.authorAvatar}</div>
+          {avatarUrl ? (
+            <img src={avatarUrl} className={styles.slideAvatar} alt="" style={{ objectFit: "cover" }} />
+          ) : (
+            <div className={styles.slideAvatar}>{story.authorAvatar}</div>
+          )}
           <div className={styles.slideAuthorInfo}>
             {!story.isAnonymous && story.userId ? (
               <Link to={`/kullanici/${story.userId}`} className={styles.slideAuthorName}>

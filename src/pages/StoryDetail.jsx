@@ -28,7 +28,7 @@ export default function StoryDetail() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, username")
+      .select("full_name, username, avatar_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => { if (data) setProfile(data); });
@@ -118,7 +118,7 @@ export default function StoryDetail() {
         user_id: user.id,
         story_id: id,
         author_name: authorName,
-        author_avatar: authorInitials,
+        author_avatar: profile?.avatar_url || authorInitials,
         content: commentText.trim(),
       })
       .select()
@@ -306,7 +306,11 @@ export default function StoryDetail() {
 
         <form className={styles.commentForm} onSubmit={submitComment}>
           <div className={styles.commentInputRow}>
-            <div className={styles.commentAvatar}>{authorInitials}</div>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} className={styles.commentAvatar} alt="" style={{ objectFit: "cover" }} />
+            ) : (
+              <div className={styles.commentAvatar}>{authorInitials}</div>
+            )}
             <input
               className={styles.commentInput}
               placeholder="Bir şey söylemek ister misin?"
@@ -336,7 +340,11 @@ export default function StoryDetail() {
           )}
           {comments.map((c) => (
             <div key={c.id} className={styles.comment}>
-              <div className={styles.commentAvatarSmall}>{c.authorAvatar}</div>
+              {c.authorAvatar?.startsWith("http") ? (
+                <img src={c.authorAvatar} className={styles.commentAvatarSmall} alt="" style={{ objectFit: "cover" }} />
+              ) : (
+                <div className={styles.commentAvatarSmall}>{c.authorAvatar}</div>
+              )}
               <div className={styles.commentContent}>
                 <div className={styles.commentMeta}>
                   <span className={styles.commentAuthor}>{c.author}</span>
