@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { mapSupabaseStory, getCoverGradient } from "../lib/storyUtils";
@@ -11,6 +11,10 @@ export default function Discover() {
   const [loading, setLoading] = useState(true);
   const [myCats, setMyCats] = useState(new Set());
   const [avatarMap, setAvatarMap] = useState({});
+  const feedRef = useRef(null);
+  const restoredRef = useRef(false);
+  const saveTimer = useRef(null);
+  const SCROLL_KEY = "discover_active_id";
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -49,6 +53,29 @@ export default function Discover() {
       .then(({ data }) => setMyCats(new Set((data || []).map((s) => s.category.toLowerCase()))));
   }, [user]);
 
+  // Hikayeler yüklenince kaydedilmiş pozisyona dön (sadece bir kez)
+  useEffect(() => {
+    if (stories.length === 0 || restoredRef.current) return;
+    restoredRef.current = true;
+    const savedId = sessionStorage.getItem(SCROLL_KEY);
+    if (!savedId) return;
+    setTimeout(() => {
+      const el = document.getElementById(`slide-${savedId}`);
+      if (el) el.scrollIntoView({ behavior: "instant" });
+    }, 0);
+  }, [stories]);
+
+  function handleScroll() {
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      if (!feedRef.current) return;
+      const { scrollTop, clientHeight } = feedRef.current;
+      const index = Math.round(scrollTop / clientHeight);
+      const id = stories[index]?.id;
+      if (id) sessionStorage.setItem(SCROLL_KEY, id);
+    }, 150);
+  }
+
   async function handleLike(storyId) {
     const wasLiked = isLiked(storyId);
     const delta = wasLiked ? -1 : 1;
@@ -72,7 +99,7 @@ export default function Discover() {
         </div>
       </div>
 
-      <div className={styles.feed}>
+      <div className={styles.feed} ref={feedRef} onScroll={handleScroll}>
         {loading ? (
           <>
             <SlideSkeletonCard />
@@ -106,7 +133,7 @@ export default function Discover() {
 
 function SlideCard({ story, liked, onLike, isConnected, avatarUrl }) {
   return (
-    <div className={styles.slide}>
+    <div id={`slide-${story.id}`} className={styles.slide}>
       <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
       <div className={styles.slideGrain} />
       <div className={styles.slideGradient} />
