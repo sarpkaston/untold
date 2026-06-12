@@ -69,20 +69,28 @@ export function AppProvider({ children }) {
 
   async function toggleLike(id) {
     const alreadyLiked = likedIds.includes(id);
-    // Optimistik güncelleme
     setLikedIds((p) => alreadyLiked ? p.filter((x) => x !== id) : [...p, id]);
 
-    if (!user || !isUUID(id)) return;
+    if (!user || !isUUID(id)) return { error: null };
 
+    let error = null;
     if (alreadyLiked) {
-      await supabase.from("story_likes").delete()
+      const { error: e } = await supabase.from("story_likes").delete()
         .eq("user_id", user.id).eq("story_id", id);
-      await supabase.rpc("decrement_story_likes", { p_story_id: id });
+      error = e;
+      if (!e) await supabase.rpc("decrement_story_likes", { p_story_id: id });
     } else {
-      await supabase.from("story_likes")
+      const { error: e } = await supabase.from("story_likes")
         .upsert({ user_id: user.id, story_id: id }, { onConflict: "user_id,story_id" });
-      await supabase.rpc("increment_story_likes", { p_story_id: id });
+      error = e;
+      if (!e) await supabase.rpc("increment_story_likes", { p_story_id: id });
     }
+
+    if (error) {
+      setLikedIds((p) => alreadyLiked ? [...p, id] : p.filter((x) => x !== id));
+    }
+
+    return { error };
   }
 
   async function toggleShelf(id) {

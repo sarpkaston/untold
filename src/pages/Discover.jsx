@@ -10,6 +10,7 @@ export default function Discover() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myCats, setMyCats] = useState(new Set());
+  const [likeDeltaMap, setLikeDeltaMap] = useState({});
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -35,6 +36,16 @@ export default function Discover() {
       .eq("published", true)
       .then(({ data }) => setMyCats(new Set((data || []).map((s) => s.category.toLowerCase()))));
   }, [user]);
+
+  async function handleLike(storyId) {
+    const wasLiked = isLiked(storyId);
+    const delta = wasLiked ? -1 : 1;
+    setLikeDeltaMap((prev) => ({ ...prev, [storyId]: (prev[storyId] || 0) + delta }));
+    const { error } = await toggleLike(storyId);
+    if (error) {
+      setLikeDeltaMap((prev) => ({ ...prev, [storyId]: (prev[storyId] || 0) - delta }));
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -65,13 +76,14 @@ export default function Discover() {
               key={story.id}
               story={story}
               liked={isLiked(story.id)}
-              onLike={toggleLike}
+              onLike={handleLike}
               isConnected={
                 !story.isAnonymous &&
                 story.userId &&
                 myCats.size > 0 &&
                 myCats.has(story.category?.toLowerCase())
               }
+              likeDelta={likeDeltaMap[story.id] || 0}
             />
           ))
         )}
@@ -80,7 +92,7 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike, isConnected }) {
+function SlideCard({ story, liked, onLike, isConnected, likeDelta }) {
   return (
     <div className={styles.slide}>
       <div className={styles.slideBg} style={{ background: story.coverColor }} />
@@ -93,7 +105,7 @@ function SlideCard({ story, liked, onLike, isConnected }) {
           onClick={() => onLike(story.id)}
         >
           <HeartIcon filled={liked} />
-          <span className={styles.slideActionLabel}>{story.likes}</span>
+          <span className={styles.slideActionLabel}>{(story.likes || 0) + likeDelta}</span>
         </button>
         <Link to={`/hikaye/${story.id}`} className={styles.slideActionBtn}>
           <CommentIcon />
