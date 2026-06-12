@@ -58,6 +58,11 @@
   margin-left: auto;
 }
 
+.menuTrigger {
+  background: rgba(0, 0, 0, 0.07) !important;
+  color: var(--ink) !important;
+}
+
 .back {
   display: flex;
   align-items: center;

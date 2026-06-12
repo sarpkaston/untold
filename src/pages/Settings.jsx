@@ -20,6 +20,33 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
 
+  // Gizlenen içerikler
+  const [blockedStories, setBlockedStories] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [hiddenLoaded, setHiddenLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user || hiddenLoaded) return;
+    setHiddenLoaded(true);
+    Promise.all([
+      supabase.from("blocked_stories").select("story_id, story_title, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("blocked_users").select("blocked_user_id, blocked_user_name, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
+    ]).then(([{ data: bs }, { data: bu }]) => {
+      setBlockedStories(bs || []);
+      setBlockedUsers(bu || []);
+    });
+  }, [user]);
+
+  async function unblockStory(storyId) {
+    await supabase.from("blocked_stories").delete().eq("user_id", user.id).eq("story_id", storyId);
+    setBlockedStories(prev => prev.filter(s => s.story_id !== storyId));
+  }
+
+  async function unblockUser(blockedUserId) {
+    await supabase.from("blocked_users").delete().eq("user_id", user.id).eq("blocked_user_id", blockedUserId);
+    setBlockedUsers(prev => prev.filter(u => u.blocked_user_id !== blockedUserId));
+  }
+
   // Profiles tablosundan yükle
   useEffect(() => {
     if (!user) return;
@@ -221,6 +248,36 @@ export default function Settings() {
             <span className={styles.chevron}>›</span>
           </Link>
         </div>
+      </div>
+
+      {/* ── Gizlenen İçerikler ──────────────────── */}
+      <div className={styles.section}>
+        <p className={styles.sectionLabel}>
+          Gizlenen İçerikler
+          {(blockedStories.length + blockedUsers.length) > 0 && (
+            <span className={styles.hiddenCount}>{blockedStories.length + blockedUsers.length}</span>
+          )}
+        </p>
+        {blockedStories.length === 0 && blockedUsers.length === 0 ? (
+          <div className={styles.hiddenEmpty}>Gizlenen içerik yok.</div>
+        ) : (
+          <div className={styles.list}>
+            {blockedStories.map(s => (
+              <div key={s.story_id} className={styles.hiddenItem}>
+                <span className={styles.hiddenIcon}>📖</span>
+                <span className={styles.hiddenLabel}>{s.story_title || "İsimsiz hikaye"}</span>
+                <button className={styles.unblockBtn} onClick={() => unblockStory(s.story_id)}>Göster</button>
+              </div>
+            ))}
+            {blockedUsers.map(u => (
+              <div key={u.blocked_user_id} className={styles.hiddenItem}>
+                <span className={styles.hiddenIcon}>👤</span>
+                <span className={styles.hiddenLabel}>{u.blocked_user_name || "Bilinmeyen yazar"}</span>
+                <button className={styles.unblockBtn} onClick={() => unblockUser(u.blocked_user_id)}>Göster</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Çıkış ───────────────────────────────── */}

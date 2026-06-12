@@ -102,6 +102,14 @@
   );
 }
 
+/* ── Three-dot menu trigger (top-right) ─────────── */
+.slideMenuBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+}
+
 /* ── Right-side TikTok action column ─────────────── */
 .slideActions {
   position: absolute;

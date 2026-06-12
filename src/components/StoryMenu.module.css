@@ -1,0 +1,163 @@
+/* ── Trigger button ──────────────────────────── */
+.trigger {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.32);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.trigger:active { background: rgba(0, 0, 0, 0.5); }
+
+/* ── Overlay + bottom sheet ──────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet {
+  background: white;
+  border-radius: 22px 22px 0 0;
+  padding: 12px 16px 36px;
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp 0.22s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Handle ──────────────────────────────────── */
+.handle {
+  width: 38px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.14);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+
+/* ── Sheet title ─────────────────────────────── */
+.sheetTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted, #888);
+  text-align: center;
+  margin: 0 0 10px;
+  font-family: 'Inter', sans-serif;
+  padding: 0 12px;
+}
+
+/* ── Menu options ────────────────────────────── */
+.option {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink, #1a1a1a);
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.1s;
+}
+.option:active { background: rgba(0, 0, 0, 0.05); }
+
+.optionDanger { color: #dc2626; }
+
+/* ── Cancel button ───────────────────────────── */
+.cancelBtn {
+  width: 100%;
+  padding: 13px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-muted, #666);
+  cursor: pointer;
+  margin-top: 6px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Report reason picker ────────────────────── */
+.reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.reasonBtn {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink, #1a1a1a);
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+.reasonSelected {
+  border-color: var(--terracotta, #c1440e);
+  background: rgba(193, 68, 14, 0.07);
+  color: var(--terracotta, #c1440e);
+  font-weight: 600;
+}
+
+/* ── Submit button ───────────────────────────── */
+.submitBtn {
+  width: 100%;
+  padding: 13px;
+  background: var(--terracotta, #c1440e);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  margin-bottom: 8px;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.15s;
+}
+.submitBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Done / Blocked state ────────────────────── */
+.resultState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 0 12px;
+  text-align: center;
+}
+.resultState span { font-size: 46px; line-height: 1; }
+.resultState p {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink, #1a1a1a);
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  line-height: 1.4;
+}

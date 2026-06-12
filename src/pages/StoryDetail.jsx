@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { mapSupabaseStory, getInitials } from "../lib/storyUtils";
 import { useApp } from "../context/AppContext";
+import StoryMenu from "../components/StoryMenu";
 import styles from "./StoryDetail.module.css";
 
 const isUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-/.test(String(id));
@@ -200,6 +201,14 @@ export default function StoryDetail() {
             <HeartIcon filled={liked} />
             {story.likes + (liked ? 1 : 0)}
           </button>
+          <StoryMenu
+            storyId={story.id}
+            authorUserId={story.userId}
+            authorName={story.isAnonymous ? "Anonim Yazar" : story.author}
+            storyTitle={story.title}
+            onBlock={() => navigate("/")}
+            triggerClass={styles.menuTrigger}
+          />
         </div>
       </div>
 

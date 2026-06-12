@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { mapSupabaseStory, getCoverGradient } from "../lib/storyUtils";
 import { useApp } from "../context/AppContext";
+import StoryMenu from "../components/StoryMenu";
 import styles from "./Discover.module.css";
 
 export default function Discover() {
@@ -15,6 +16,8 @@ export default function Discover() {
   const restoredRef = useRef(false);
   const saveTimer = useRef(null);
   const SCROLL_KEY = "discover_active_id";
+  const [blockedStoryIds, setBlockedStoryIds] = useState(new Set());
+  const [blockedUserIds, setBlockedUserIds] = useState(new Set());
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -52,6 +55,23 @@ export default function Discover() {
       .eq("published", true)
       .then(({ data }) => setMyCats(new Set((data || []).map((s) => s.category.toLowerCase()))));
   }, [user]);
+
+  // Gizlenen hikaye ve kullanıcıları yükle
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase.from("blocked_stories").select("story_id").eq("user_id", user.id),
+      supabase.from("blocked_users").select("blocked_user_id").eq("user_id", user.id),
+    ]).then(([{ data: bs }, { data: bu }]) => {
+      setBlockedStoryIds(new Set((bs || []).map(r => r.story_id)));
+      setBlockedUserIds(new Set((bu || []).map(r => r.blocked_user_id)));
+    });
+  }, [user]);
+
+  function handleBlock(storyId, authorUserId) {
+    setBlockedStoryIds(prev => new Set([...prev, storyId]));
+    if (authorUserId) setBlockedUserIds(prev => new Set([...prev, authorUserId]));
+  }
 
   // Hikayeler yüklenince kaydedilmiş pozisyona dön (sadece bir kez)
   useEffect(() => {
@@ -110,7 +130,9 @@ export default function Discover() {
             <p>Henüz hikaye yok.</p>
           </div>
         ) : (
-          stories.map((story) => (
+          stories
+            .filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)))
+            .map((story) => (
             <SlideCard
               key={story.id}
               story={story}
@@ -123,6 +145,7 @@ export default function Discover() {
                 myCats.has(story.category?.toLowerCase())
               }
               avatarUrl={story.isAnonymous ? null : (avatarMap[story.userId] || null)}
+              onBlock={handleBlock}
             />
           ))
         )}
@@ -131,12 +154,20 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike, isConnected, avatarUrl }) {
+function SlideCard({ story, liked, onLike, isConnected, avatarUrl, onBlock }) {
   return (
     <div id={`slide-${story.id}`} className={styles.slide}>
       <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
       <div className={styles.slideGrain} />
       <div className={styles.slideGradient} />
+      <StoryMenu
+        storyId={story.id}
+        authorUserId={story.userId}
+        authorName={story.isAnonymous ? "Anonim Yazar" : story.author}
+        storyTitle={story.title}
+        onBlock={onBlock}
+        triggerClass={styles.slideMenuBtn}
+      />
 
       <div className={styles.slideActions}>
         <button
