@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { supabase } from "../lib/supabase";
 import { getInitials, mapSupabaseStory, getCoverColor, formatDate } from "../lib/storyUtils";
@@ -13,7 +13,9 @@ function getMinDateTime() {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("raf");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "raf";
+  function setActiveTab(tab) { setSearchParams({ tab }, { replace: true }); }
   const { shelfIds, user } = useApp();
   const [myStories, setMyStories] = useState([]);
   const [shelfStories, setShelfStories] = useState([]);
