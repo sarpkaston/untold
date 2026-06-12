@@ -50,6 +50,11 @@ img { max-width: 100%; display: block; }
 
 input, textarea { font-family: 'Inter', system-ui, sans-serif; }
 
+@keyframes pageIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 #root {
   width: 100%;
   max-width: 390px;

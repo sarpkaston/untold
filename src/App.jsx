@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext";
 import Auth from "./pages/Auth";
 import Splash from "./components/Splash";
@@ -52,27 +52,38 @@ function AppInner() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Discover />} />
-        <Route path="/eslesmeler" element={<Matches />} />
-        <Route path="/hikayem" element={<MyStory />} />
-        <Route path="/profil" element={<Profile />} />
-        <Route path="/hikaye/:id" element={<StoryDetail />} />
-        <Route path="/yaz" element={<Write />} />
-        <Route path="/bildirimler" element={<Notifications />} />
-        <Route path="/gizlilik" element={<Privacy />} />
-        <Route path="/sifre-degistir" element={<ChangePassword />} />
-        <Route path="/yardim" element={<Help />} />
-        <Route path="/kullanim-kosullari" element={<Terms />} />
-            <Route path="/canli/:roomName" element={<LiveStream />} />
-        <Route path="/kullanici/:userId" element={<UserProfile />} />
-        <Route path="/ayarlar" element={<Settings />} />
-        <Route path="/mesajlar" element={<Messages />} />
-        <Route path="/mesajlar/:userId" element={<Thread />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <BottomNav />
+      <AppRoutes />
     </BrowserRouter>
+  );
+}
+
+function AppRoutes() {
+  const location = useLocation();
+  return (
+    <>
+      <div key={location.pathname} style={{ animation: "pageIn 0.22s ease forwards" }}>
+        <Routes>
+          <Route path="/" element={<Discover />} />
+          <Route path="/eslesmeler" element={<Matches />} />
+          <Route path="/hikayem" element={<MyStory />} />
+          <Route path="/profil" element={<Profile />} />
+          <Route path="/hikaye/:id" element={<StoryDetail />} />
+          <Route path="/yaz" element={<Write />} />
+          <Route path="/bildirimler" element={<Notifications />} />
+          <Route path="/gizlilik" element={<Privacy />} />
+          <Route path="/sifre-degistir" element={<ChangePassword />} />
+          <Route path="/yardim" element={<Help />} />
+          <Route path="/kullanim-kosullari" element={<Terms />} />
+          <Route path="/canli/:roomName" element={<LiveStream />} />
+          <Route path="/kullanici/:userId" element={<UserProfile />} />
+          <Route path="/ayarlar" element={<Settings />} />
+          <Route path="/mesajlar" element={<Messages />} />
+          <Route path="/mesajlar/:userId" element={<Thread />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      <BottomNav />
+    </>
   );
 }
 

@@ -13,7 +13,6 @@ export default function Thread() {
   const [partner, setPartner] = useState(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
-  const [selectedMsgId, setSelectedMsgId] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -133,22 +132,18 @@ export default function Thread() {
         )}
         {messages.map((msg) => {
           const isMine = msg.from_user_id === user?.id;
-          const isSelected = selectedMsgId === msg.id;
           return (
             <div
               key={msg.id}
               className={`${styles.msgRow} ${isMine ? styles.msgRowMine : styles.msgRowTheirs}`}
             >
-              <div
-                className={`${styles.bubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}
-                onClick={() => isMine && setSelectedMsgId(isSelected ? null : msg.id)}
-              >
+              <div className={`${styles.bubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}>
                 <p className={styles.bubbleText}>{msg.content}</p>
                 <span className={styles.bubbleTime}>
                   {new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              {isMine && isSelected && (
+              {isMine && (
                 <button className={styles.deleteBtn} onClick={() => deleteMessage(msg.id)}>
                   <TrashIcon />
                 </button>

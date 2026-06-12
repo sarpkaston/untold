@@ -91,23 +91,24 @@
 
 .bubble {
   max-width: 72%;
+  min-width: 60px;
   padding: 10px 14px;
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  cursor: default;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .bubbleMine {
   background: var(--terracotta);
   color: white;
   border-bottom-right-radius: 4px;
-  cursor: pointer;
 }
 
 .bubbleTheirs {
-  background: var(--paper);
+  background: var(--warm-white);
   color: var(--ink);
   border-bottom-left-radius: 4px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
@@ -116,14 +117,15 @@
 .deleteBtn {
   background: none;
   border: none;
-  color: rgba(231,76,60,0.65);
+  color: rgba(180,130,110,0.55);
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .deleteBtn:active {
