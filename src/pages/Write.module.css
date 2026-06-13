@@ -159,6 +159,15 @@
   box-shadow: 0 0 0 3px rgba(193, 68, 14, 0.1);
 }
 
+.catGroupLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink-faint, #bbb);
+  margin: 10px 0 6px 2px;
+}
+
 .catGrid {
   display: flex;
   flex-wrap: wrap;

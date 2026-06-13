@@ -14,31 +14,184 @@ const DEFAULT_QUESTIONS = [
 ];
 
 const INTEREST_PROMPTS = {
-  "aşk": ["İlk aşkın sana ne öğretti?", "Sonu gelmeyen bir duyguyu nasıl bıraktın?", "Hiç kimseye söyleyemediğin bir aşkın var mı?"],
-  "aile": ["Ailenle paylaşmadığın bir anı anlat.", "Ebeveynlerinden öğrendiğin en değerli şey neydi?", "Çocukluğundan bir sahne gözünde canlanıyor mu?"],
-  "kariyer": ["Kariyerinde en cesur adımın ne oldu?", "En büyük başarısızlığından ne öğrendin?", "Hayalindeki iş hâlâ uzakta mı?"],
-  "sağlık": ["Bedenini dinlemeye ne zaman başladın?", "Hastalık sana ne öğretti?", "Kendine iyi bakmayı ne zaman öğrendin?"],
-  "spor": ["Bir hedef belirleyip pes ettiğin oldu mu?", "Spor sana ne kazandırdı?", "En zor antremanını anlat."],
-  "psikoloji": ["Kendinle en zor ne zaman yüzleştim?", "Farkında olmadan tekrarladığın bir davranış var mı?", "Terapide öğrendiğin en önemli şey neydi?"],
-  "müzik": ["Bir şarkı seni neden ağlatır?", "Müzik olmadan geçirdiğin bir günü hatırlıyor musun?", "Hangi şarkı seni en çok anlatan?"],
-  "edebiyat": ["Bir kitap seni nasıl değiştirdi?", "Hangi karakterle aynı kişisin?", "Okuduğun en unutulmaz cümle neydi?"],
-  "girişimcilik": ["İlk fikrin neydi ve ne oldu?", "Başarısız olduğun bir girişimi anlat.", "Pişman olmadığın bir risk ne?"],
-  "seyahat": ["Hiç kaybolduğun bir yolculuğu anlat.", "Seni en çok değiştiren şehir hangisi?", "Eve dönüşün nasıl hissettirdi?"],
-  "yemek": ["Annenin veya birinin yemeğini anlat.", "Yemek sana neyi hatırlatır?", "En iyi yediğin yemeğin hikayesi nedir?"],
-  "teknoloji": ["Teknolojiyle ilişkin ne zaman karmaşıklaştı?", "Dijital dünyada kaybettiğin şey nedir?", "Ekranlar olmadan bir gün geçirebilir miydin?"],
-  "sinema": ["Bir film seni neden saatlerce düşündürdü?", "Hangi filmin içine girmek isterdin?", "Sinema ile ilk karşılaşman nasıldı?"],
-  "oyun": ["Oyunlardan öğrendiğin bir ders nedir?", "Kaybetmek seni nasıl hissettiriyor?", "Bir oyunun içinde kaybolduğun oldu mu?"],
-  "din & inanç": ["İnanç seni en zor anda nasıl tuttu?", "Sorguladığın bir inanç var mı?", "Manevi bir deneyim yaşadın mı?"],
-  "doğa": ["Doğada yalnız kaldığın bir anı anlat.", "Bir ağaç sana ne söylerdi?", "Doğa seni en çok hangi anda sardı?"],
-  "sanat": ["İlk yaptığın sanatsal şeyi hatırlıyor musun?", "Sanat olmadan hayat nasıl olurdu?", "Seni en çok etkileyen eser hangisi?"],
-  "tarih": ["Tarihin hangi dönemini yaşamak isterdin?", "Tarih tekerrür ediyor mu sence?", "Tarihten kim olsaydın ne değiştirirdin?"],
-  "felsefe": ["Varoluşu sorguladığın bir geceyi anlat.", "Özgür irade var mı sence?", "Anlam arayışın nerede başladı?"],
-  "eğitim": ["Okul sana ne öğretmedi?", "Hayatını değiştiren bir öğretmen var mı?", "Öğrenmenin tadını ne zaman çıkardın?"],
-  "depresyon": ["Karanlıkta tutunduğun şey neydi?", "Kendini anlatamamanın ağırlığı nasıl bir his?", "İlk kez yardım istediğin anı anlat."],
-  "bağımlılık": ["Bırakmak istediğinde ne oldu?", "Bağımlılık sana ne veriyordu?", "Vazgeçişin ilk adımı nasıldı?"],
-  "kayıp": ["Yası nasıl yaşadın?", "Kaybettiğin biriyle vedalaşabilseydin ne söylerdin?", "Kayıptan sonra ne değişti?"],
-  "göç": ["Yuva sana ne anlam taşıyor?", "Yeni bir yere ilk geldiğinde ne hissettin?", "İki kültür arasında sıkışık hissettin mi?"],
-  "travma": ["Travmayı dile getirmek neden bu kadar zor?", "İyileşmeye başladığın an hangisiydi?", "Kendine şefkatle bakabildin mi?"],
+  "aşk": [
+    "İlk aşkının sana kattığı en önemli şeyi anlat.",
+    "Platonic bir aşkı yaşadın mı hiç? Nasıl hissettirdi?",
+    "Aşkın bittiğini fark ettiğin o anı hatırlıyor musun?",
+    "Seni seven biri için aynı şeyi hissetmediğin bir dönem oldu mu?",
+    "Uzak mesafe ilişkisi yaşadın mı? Ne öğretti?",
+  ],
+  "aile": [
+    "Anne veya babanla kurduğun en zor konuşmayı anlat.",
+    "Kardeşinle olan bir anını hikayeleştir.",
+    "Büyükanne ya da büyükbabadan öğrendiğin en değerli şey neydi?",
+    "Aile olmak kan mı, seçim mi — sen ne düşünüyorsun?",
+    "Ailenin sana ilettiği bir geleneği ve ne ifade ettiğini anlat.",
+  ],
+  "kariyer": [
+    "İlk işe girdiğinde içinde neler geçti?",
+    "Kariyerinde 'bu yanlış yol' dediğin bir dönem oldu mu?",
+    "Çalıştığın birinden öğrendiğin en değerli ders neydi?",
+    "Patronunla yaşadığın en zorlu anı anlat.",
+    "Bir işi bırakmak zorunda kaldığında ne hissettin?",
+  ],
+  "sağlık": [
+    "Hastanede geçirdiğin bir geceyi anlat.",
+    "Bedeninin sana dürüst olmadığını ne zaman fark ettin?",
+    "Mental sağlığına öncelik vermeye başladığın anı hatırlıyor musun?",
+    "Doktorun sana söylediği bir şey hayatını değiştirdi mi?",
+    "Uyku düzenin seni en çok ne zaman etkiledi?",
+  ],
+  "spor": [
+    "Futbol maçında veya sahada yaşadığın en yoğun anı anlat.",
+    "Basketbolda son saniye sayısı gibi bir karar aldın mı hayatında?",
+    "Koşu sırasında aklından neler geçiyor — hiç yazdın mı?",
+    "Takım sporunda öğrendiğin en değerli şey neydi?",
+    "Favori sporcuna olan hayranlığını ve sebebini anlat.",
+    "Sporda kaybetmenin sana verdiği en büyük ders neydi?",
+  ],
+  "psikoloji": [
+    "Kendinle ilgili kabul etmekte en çok zorlandığın şey nedir?",
+    "Farkında olmadan tekrarladığın bir davranış örüntüsü var mı?",
+    "Terapiye gittin mi? Sana ne öğretti?",
+    "Savunma mekanizman nedir — inkâr mı, yansıtma mı, kaçınma mı?",
+    "Bağlanma biçimin ilişkilerini nasıl şekillendirdi?",
+  ],
+  "müzik": [
+    "Bir şarkı seni neden ağlatır — o şarkıyı ve hikayesini anlat.",
+    "Konserde veya festivalde yaşadığın en unutulmaz anı yaz.",
+    "Çocukluğunda dinlediğin müzikler sana ne hatırlatıyor?",
+    "Bir enstrüman çalmayı öğrendin mi? Nasıl bir deneyimdi?",
+    "Söz yazan biri olsaydın ilk şarkın ne hakkında olurdu?",
+  ],
+  "edebiyat": [
+    "Seni en çok etkileyen kitabı ve nedenini anlat.",
+    "Hangi roman karakteriyle kendin arasında paralellik görüyorsun?",
+    "Aklından hiç çıkmayan bir kitap cümlesi var mı?",
+    "Dostoyevski, Kafka veya başka bir yazar seni nasıl etkiledi?",
+    "Bir kitabı bitirince boşluk mu hissediyorsun, doyum mu?",
+  ],
+  "girişimcilik": [
+    "İlk iş fikrini ve ne olduğunu anlat.",
+    "Başarısız olan bir girişiminden ne öğrendin?",
+    "Bir ortak anlaşmazlığını ve nasıl çözdüğünü anlat.",
+    "Startup hayatında en zor karar hangisiydi?",
+    "Herkes 'yanlış' dedi ama pişman olmadığın bir risk neydi?",
+  ],
+  "seyahat": [
+    "Kaybolduğun bir yolculuğu anlat — fiziksel veya duygusal.",
+    "Seni en çok değiştiren şehri ve nedenini anlat.",
+    "Yurt dışında ilk kez yalnız kaldığında ne hissettin?",
+    "Seyahatte karşılaştığın en ilginç insanı anlat.",
+    "Bir ülkede yaşadığın kültür şokunu yaz.",
+  ],
+  "yemek": [
+    "Annenin ya da büyükannenin bir yemeğini ve hatıralarını anlat.",
+    "En iyi yediğin yemeğin hikayesini yaz.",
+    "Bir yemeği ilk defa pişirdiğinde ne oldu?",
+    "Yabancı bir mutfağı keşfettiğinde ne hissettin?",
+    "Aç kaldığın bir dönemi ve sana ne öğrettiğini anlat.",
+  ],
+  "teknoloji": [
+    "Sosyal medyanın hayatına gerçekten nasıl girdiğini anlat.",
+    "Teknolojiyle kötü bir deneyim yaşadın mı — hırsızlık, gizlilik ihlali?",
+    "Yapay zeka hakkında ne hissediyorsun — umut mu, korku mu?",
+    "Bir uygulamanın veya platformun seni nasıl değiştirdiğini yaz.",
+    "Dijital detoks yaptın mı? Neler değişti?",
+  ],
+  "sinema": [
+    "Seni en çok etkileyen filmi ve nedenini anlat.",
+    "Bir film sahnesi için ağladın mı? Hangisi ve neden?",
+    "Yönetmen olsaydın hangi hikayeyi çekerdin?",
+    "Sinemayla ilk kez büyülendiğin anı hatırlıyor musun?",
+    "Bir belgesel izledikten sonra düşüncen nasıl değişti?",
+  ],
+  "oyun": [
+    "Çocukken en çok hangi oyunu oynardın ve ne hissettirirdi?",
+    "Bir oyundan hayata taşıdığın bir strateji var mı?",
+    "Online oyunlarda tanıştığın biriyle gerçek arkadaş oldun mu?",
+    "Oyunda kaybetmenin sana verdiği en büyük ders neydi?",
+    "E-spor veya rekabetçi oyun deneyimini anlat.",
+  ],
+  "din & inanç": [
+    "İnancın en çok sınavdan geçtiği dönem hangisiydi?",
+    "Namaz, dua veya meditasyon sana ne veriyor?",
+    "Ramazan, bayram ya da özel bir ritüeli ve anlamını anlat.",
+    "İnanç ile akıl arasındaki gerilimi nasıl yönetiyorsun?",
+    "İnancını sorguladığın veya pekiştirdiğin bir an var mı?",
+  ],
+  "doğa": [
+    "Doğada yalnız kaldığın ve içini döktüğün bir anı anlat.",
+    "Deniz, dağ, orman — hangisi seni en çok huzurlandırıyor ve neden?",
+    "Bir hayvanla özel bir anın oldu mu?",
+    "Şehir hayatından kaçıp doğaya sığındığın bir zamanı anlat.",
+    "Mevsim geçişlerinin seni nasıl etkilediğini yaz.",
+  ],
+  "sanat": [
+    "İlk kez bir sanat eserinin karşısında donup kaldığın anı anlat.",
+    "Resim, heykel, müzik, dans — hangisiyle kendini ifade etmek isterdin?",
+    "Bir müzeye gittiğinde neler hissediyorsun?",
+    "Yarattığın bir şeyi beğenilmesi için mi, kendin için mi yaptın?",
+    "Sanat gerçekten toplumu değiştirebilir mi sence?",
+  ],
+  "tarih": [
+    "Osmanlı'nın çöküşünden bugüne taşınan bir iz görüyor musun?",
+    "Atatürk'ün en cesur kararı hangisiydi sence?",
+    "Kurtuluş Savaşı'nın ruhunu günümüzde nerede hissediyorsun?",
+    "Bizans'ın düşüşünden ya da başka bir imparatorluktan çıkarabileceğin bir ders nedir?",
+    "Savaş dönemi yaşayan biriyle konuşabilseydin ne sorardın?",
+    "Tarihin tekerrür ettiğini hissettiğin bir an oldu mu?",
+  ],
+  "felsefe": [
+    "Sokrates 'Kendini bil' dedi — sen kendini ne kadar bildiğini düşünüyorsun?",
+    "Nietzsche'nin 'Güç istenci' kavramı hayatında bir karşılık buluyor mu?",
+    "Sisifos'u mutlu hayal edebilir misin? Bu sana ne hissettiriyor?",
+    "Özgür iraden olduğuna inanıyor musun ve bu inanç seni nasıl etkiliyor?",
+    "Platon'un mağara alegorisi gerçekliğin neresine düşüyor sence?",
+    "Varoluşun anlamsızlığıyla ilk kez yüzleştiğin an neydi?",
+  ],
+  "eğitim": [
+    "Okulda öğrendiğin en işe yaramaz şey neydi?",
+    "Hayatını değiştiren bir öğretmeni anlat.",
+    "Sınıfta utandığın veya gurur duyduğun bir anı yaz.",
+    "Sınav kaygısının en yoğun hissettirdiği dönem hangisiydi?",
+    "Üniversite seçimi süreci seni nasıl etkiledi?",
+  ],
+  "depresyon": [
+    "En karanlık döneminde tutunduğun tek şey neydi?",
+    "Depresyonu başkasına tarif etmek neden bu kadar zor?",
+    "İlk kez yardım istediğin anı anlat — nasıl hissettirdi?",
+    "Küçük bir şey seni nasıl o günden kurtardı?",
+    "İyileşme bir anda mı geldi, yoksa yavaş yavaş mı?",
+  ],
+  "bağımlılık": [
+    "Bağımlılığının başladığını ne zaman fark ettin?",
+    "Bağımlılık sana ne veriyordu — tam olarak neyi dolduruyordu?",
+    "Bırakmaya karar verdiğin o anı anlat.",
+    "Relaps yaşadın mı? Kendine nasıl yaklaştın?",
+    "Mücadelede en çok kim veya ne yardımcı oldu?",
+  ],
+  "kayıp": [
+    "Kaybettiğin biriyle vedalaşabilseydin ne söylerdin?",
+    "Yas sürecinin en beklenmedik aşaması hangisiydi?",
+    "Birini kaybettikten sonra değişen bir alışkanlığın veya düşüncen var mı?",
+    "Kayıp sana ölüm hakkında ne öğretti?",
+    "Anıyı nasıl koruyorsun — fotoğraf, nesne, ritüel?",
+  ],
+  "göç": [
+    "Yeni bir şehire ya da ülkeye gittiğinde 'yuva' kelimesi ne anlam taşıdı?",
+    "İlk günlerde en çok neye şaşırdın?",
+    "İki kültür arasında kalmak nasıl bir his?",
+    "Göç etmek zorunda mı kaldın, yoksa seçim miydi?",
+    "Özlem duyduğun en küçük, en önemsiz şeyi anlat.",
+  ],
+  "travma": [
+    "Travmayı kelimelerle anlatmaya çalışmak nasıl bir his?",
+    "İyileşmeye başladığını fark ettiğin ilk an hangisiydi?",
+    "Travmanın sana başkasında göremeyeceğin bir şey kazandırdı mı?",
+    "Travma sonrası güven duygunu nasıl yeniden inşa ettin?",
+    "Kendine şefkatle bakabilmeyi nasıl öğrendin?",
+  ],
 };
 
 function getMinDateTime() {
@@ -70,8 +223,9 @@ export default function Write() {
   const [publishError, setPublishError] = useState("");
   const [publishDone, setPublishDone] = useState(false);
 
-  // Personalized inspiration questions
+  // Personalized inspiration questions + category ordering
   const [inspirationQuestions, setInspirationQuestions] = useState(DEFAULT_QUESTIONS);
+  const [userInterests, setUserInterests] = useState([]); // original case, e.g. ["Felsefe", "Spor"]
 
   useEffect(() => {
     if (!user) return;
@@ -79,6 +233,7 @@ export default function Write() {
       .then(({ data }) => {
         const interests = data?.interests || [];
         if (interests.length === 0) return;
+        setUserInterests(interests);
         const questions = interests.map(interest => {
           const pool = INTEREST_PROMPTS[interest.toLowerCase()] || [];
           return pool[Math.floor(Math.random() * pool.length)];
@@ -128,7 +283,14 @@ export default function Write() {
   }, [customInput]);
 
   const wordCount = form.content.trim().split(/\s+/).filter(Boolean).length;
-  const isPresetSelected = PRESET_CATEGORIES.includes(form.category);
+  const isPresetSelected = PRESET_CATEGORIES.includes(form.category) ||
+    userInterests.some(i => i.toLowerCase() === form.category.toLowerCase());
+
+  // Categories split: user interests first, then the rest of PRESET
+  const interestCats = userInterests;
+  const otherCats = PRESET_CATEGORIES.filter(
+    c => !interestCats.some(i => i.toLowerCase() === c.toLowerCase())
+  );
 
   async function handlePublish() {
     if (!user) { setPublishError("Yayınlamak için giriş yapmalısın."); return; }
@@ -266,8 +428,26 @@ export default function Write() {
               <div className={styles.field}>
                 <label className={styles.label}>Kategori *</label>
 
+                {interestCats.length > 0 && (
+                  <>
+                    <p className={styles.catGroupLabel}>Senin İçin</p>
+                    <div className={styles.catGrid}>
+                      {interestCats.map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`${styles.catOption} ${form.category === cat ? styles.catSelected : ""}`}
+                          onClick={() => selectPreset(cat)}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                    <p className={styles.catGroupLabel}>Diğer</p>
+                  </>
+                )}
                 <div className={styles.catGrid}>
-                  {PRESET_CATEGORIES.map((cat) => (
+                  {otherCats.map((cat) => (
                     <button
                       key={cat}
                       type="button"

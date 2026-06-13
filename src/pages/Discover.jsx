@@ -19,6 +19,7 @@ export default function Discover() {
   const [blockedStoryIds, setBlockedStoryIds] = useState(new Set());
   const [blockedUserIds, setBlockedUserIds] = useState(new Set());
   const [blockedLoaded, setBlockedLoaded] = useState(false);
+  const [userInterests, setUserInterests] = useState(new Set()); // lowercase set
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -57,15 +58,17 @@ export default function Discover() {
       .then(({ data }) => setMyCats(new Set((data || []).map((s) => s.category.toLowerCase()))));
   }, [user]);
 
-  // Gizlenen hikaye ve kullanıcıları yükle
+  // Gizlenen içerikler + ilgi alanlarını birlikte yükle
   useEffect(() => {
     if (!user) { setBlockedLoaded(true); return; }
     Promise.all([
       supabase.from("blocked_stories").select("story_id").eq("user_id", user.id),
       supabase.from("blocked_users").select("blocked_user_id").eq("user_id", user.id),
-    ]).then(([{ data: bs }, { data: bu }]) => {
+      supabase.from("profiles").select("interests").eq("id", user.id).single(),
+    ]).then(([{ data: bs }, { data: bu }, { data: profile }]) => {
       setBlockedStoryIds(new Set((bs || []).map(r => r.story_id)));
       setBlockedUserIds(new Set((bu || []).map(r => r.blocked_user_id)));
+      setUserInterests(new Set((profile?.interests || []).map(i => i.toLowerCase())));
       setBlockedLoaded(true);
     });
   }, [user]);
@@ -75,14 +78,23 @@ export default function Discover() {
     if (authorUserId) setBlockedUserIds(prev => new Set([...prev, authorUserId]));
   }
 
-  // Hikayeler ve gizleme listesi yüklenince kaydedilmiş pozisyona dön (sadece bir kez)
+  // Görüntülenecek hikayeler: filtrele → ilgi alanlarına göre öne al
+  const displayedStories = stories
+    .filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)))
+    .sort((a, b) => {
+      const aM = userInterests.has((a.category || "").toLowerCase());
+      const bM = userInterests.has((b.category || "").toLowerCase());
+      if (aM === bM) return 0;
+      return aM ? -1 : 1;
+    });
+
+  // Scroll pozisyonunu geri yükle (stories + blocked + interests yüklenince, bir kez)
   useEffect(() => {
     if (!blockedLoaded || stories.length === 0 || restoredRef.current) return;
     restoredRef.current = true;
     const savedId = sessionStorage.getItem(SCROLL_KEY);
     if (!savedId || !feedRef.current) return;
-    const visible = stories.filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)));
-    const index = visible.findIndex(s => s.id === savedId);
+    const index = displayedStories.findIndex(s => s.id === savedId);
     if (index <= 0) return;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -99,8 +111,7 @@ export default function Discover() {
       if (!feedRef.current) return;
       const { scrollTop, clientHeight } = feedRef.current;
       const index = Math.round(scrollTop / clientHeight);
-      const visible = stories.filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)));
-      const id = visible[index]?.id;
+      const id = displayedStories[index]?.id;
       if (id) sessionStorage.setItem(SCROLL_KEY, id);
     }, 150);
   }
@@ -139,9 +150,7 @@ export default function Discover() {
             <p>Henüz hikaye yok.</p>
           </div>
         ) : (
-          stories
-            .filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)))
-            .map((story) => (
+          displayedStories.map((story) => (
             <SlideCard
               key={story.id}
               story={story}
@@ -153,6 +162,7 @@ export default function Discover() {
                 myCats.size > 0 &&
                 myCats.has(story.category?.toLowerCase())
               }
+              isInterest={userInterests.has((story.category || "").toLowerCase())}
               avatarUrl={story.isAnonymous ? null : (avatarMap[story.userId] || null)}
               onBlock={handleBlock}
             />
@@ -163,7 +173,7 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike, isConnected, avatarUrl, onBlock }) {
+function SlideCard({ story, liked, onLike, isConnected, isInterest, avatarUrl, onBlock }) {
   return (
     <div id={`slide-${story.id}`} className={styles.slide}>
       <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
@@ -193,7 +203,10 @@ function SlideCard({ story, liked, onLike, isConnected, avatarUrl, onBlock }) {
       </div>
 
       <div className={styles.slideContent}>
-        <span className={styles.slideCatBadge}>{story.category}</span>
+        <div className={styles.slideBadgeRow}>
+          <span className={styles.slideCatBadge}>{story.category}</span>
+          {isInterest && <span className={styles.slideInterestBadge}>✦ İlgi alanın</span>}
+        </div>
         <h2 className={styles.slideTitle}>{story.title}</h2>
         {story.subtitle && <p className={styles.slideSubtitle}>{story.subtitle}</p>}
         <div className={styles.slideAuthorRow}>

@@ -158,6 +158,13 @@
   z-index: 3;
 }
 
+.slideBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .slideCatBadge {
   display: inline-block;
   font-size: 9px;
@@ -168,7 +175,19 @@
   border: 1px solid rgba(255,255,255,0.4);
   padding: 3px 9px;
   border-radius: 20px;
-  margin-bottom: 10px;
+}
+
+.slideInterestBadge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  background: rgba(251, 191, 36, 0.14);
+  padding: 3px 9px;
+  border-radius: 20px;
 }
 
 .slideTitle {
