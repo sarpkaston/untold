@@ -145,18 +145,12 @@ function ReportsTab() {
 
   useEffect(() => {
     async function load() {
-      const { data: reportData, error } = await supabase
-        .from("story_reports")
-        .select("id, reason, created_at, story_id, user_id")
-        .order("created_at", { ascending: false })
-        .limit(200);
+      // SECURITY DEFINER fonksiyonu — RLS'yi atlayarak tüm şikayetleri getirir
+      const { data: reportData, error } = await supabase.rpc("get_admin_reports");
 
       if (error) {
-        console.error("story_reports SELECT hatası:", error);
-        const msg = error.message?.includes("permission denied")
-          ? "İzin hatası: Supabase SQL Editor'da 012_fix_rls_auth_email.sql migrasyonunu çalıştır."
-          : error.message;
-        setFetchError(msg);
+        console.error("story_reports hatası:", error);
+        setFetchError(`${error.message} — Supabase'de get_admin_reports fonksiyonunu oluşturdun mu?`);
         setLoading(false);
         return;
       }
