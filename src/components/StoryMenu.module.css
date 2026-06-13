@@ -16,38 +16,37 @@
 }
 .trigger:active { background: rgba(0, 0, 0, 0.5); }
 
-/* ── Overlay + bottom sheet ──────────────────── */
+/* ── Overlay + modal ─────────────────────────── */
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.48);
   z-index: 300;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 16px 16px calc(var(--bottom-nav-height, 68px) + 16px);
 }
 
 .sheet {
   background: white;
-  border-radius: 22px 22px 0 0;
-  padding: 12px 16px 36px;
+  border-radius: 20px;
+  padding: 20px 16px 20px;
   width: 100%;
-  max-width: 480px;
-  animation: slideUp 0.22s ease;
+  max-width: 440px;
+  max-height: calc(100dvh - var(--bottom-nav-height, 68px) - 48px);
+  overflow-y: auto;
+  animation: menuIn 0.18s ease;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes menuIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 
-/* ── Handle ──────────────────────────────────── */
+/* ── Handle (hidden for centered modal) ──────── */
 .handle {
-  width: 38px;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.14);
-  border-radius: 2px;
-  margin: 0 auto 14px;
+  display: none;
 }
 
 /* ── Sheet title ─────────────────────────────── */
