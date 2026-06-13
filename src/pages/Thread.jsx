@@ -8,31 +8,52 @@ import styles from "./Thread.module.css";
 export default function Thread() {
   const { userId: partnerId } = useParams();
   const [searchParams] = useSearchParams();
-  const isAnon = searchParams.get("anon") === "1";
-  const { user } = useApp();
+  const { user, refreshUnreadCount } = useApp();
   const navigate = useNavigate();
+
   const [messages, setMessages] = useState([]);
   const [partner, setPartner] = useState(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
 
+  // Anonim durum — URL param veya mesaj geçmişinden belirlenir
+  const urlMyAnon = searchParams.get("myAnon") === "1";
+  const urlPartnerAnon = searchParams.get("anon") === "1";
+
+  const [myAnon, setMyAnon] = useState(urlMyAnon);
+  const [partnerAnon, setPartnerAnon] = useState(urlPartnerAnon);
+  const [myRevealed, setMyRevealed] = useState(false);
+  const [partnerRevealed, setPartnerRevealed] = useState(false);
+  const [revealing, setRevealing] = useState(false);
+
+  const showMeAsAnon = myAnon && !myRevealed;
+  const showPartnerAsAnon = partnerAnon && !partnerRevealed;
+
   useEffect(() => {
     if (!user || !partnerId) return;
 
-    supabase
-      .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("id", partnerId)
-      .single()
+    // Partner profili
+    supabase.from("profiles").select("full_name, avatar_url")
+      .eq("id", partnerId).single()
       .then(({ data }) => setPartner(data));
+
+    // Kimlik açma durumlarını yükle
+    supabase.from("thread_reveals").select("user_id, partner_id")
+      .or(`and(user_id.eq.${user.id},partner_id.eq.${partnerId}),and(user_id.eq.${partnerId},partner_id.eq.${user.id})`)
+      .then(({ data }) => {
+        (data || []).forEach((r) => {
+          if (r.user_id === user.id) setMyRevealed(true);
+          if (r.user_id === partnerId) setPartnerRevealed(true);
+        });
+      });
 
     fetchMessages();
 
+    // Gerçek zamanlı: yeni mesajlar
     const channel = supabase
       .channel(`thread-${[user.id, partnerId].sort().join("-")}`)
-      .on(
-        "postgres_changes",
+      .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const msg = payload.new;
@@ -45,7 +66,19 @@ export default function Thread() {
             return [...prev, msg];
           });
           if (msg.to_user_id === user.id) {
-            supabase.from("messages").update({ read: true }).eq("id", msg.id).then(() => {});
+            supabase.from("messages").update({ read: true }).eq("id", msg.id).then(() => {
+              refreshUnreadCount();
+            });
+          }
+        }
+      )
+      // Gerçek zamanlı: kimlik açma
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "thread_reveals" },
+        (payload) => {
+          const r = payload.new;
+          if (r.user_id === partnerId && r.partner_id === user.id) {
+            setPartnerRevealed(true);
           }
         }
       )
@@ -53,6 +86,19 @@ export default function Thread() {
 
     return () => supabase.removeChannel(channel);
   }, [user, partnerId]);
+
+  // Mesaj geçmişinden anonim durumu çıkar
+  useEffect(() => {
+    if (messages.length === 0) return;
+    if (!urlMyAnon) {
+      const myAnonHist = messages.some(m => m.from_user_id === user?.id && m.sender_anonymous);
+      if (myAnonHist) setMyAnon(true);
+    }
+    if (!urlPartnerAnon) {
+      const partnerAnonHist = messages.some(m => m.from_user_id === partnerId && m.sender_anonymous);
+      if (partnerAnonHist) setPartnerAnon(true);
+    }
+  }, [messages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -62,9 +108,7 @@ export default function Thread() {
     const { data } = await supabase
       .from("messages")
       .select("*")
-      .or(
-        `and(from_user_id.eq.${user.id},to_user_id.eq.${partnerId}),and(from_user_id.eq.${partnerId},to_user_id.eq.${user.id})`
-      )
+      .or(`and(from_user_id.eq.${user.id},to_user_id.eq.${partnerId}),and(from_user_id.eq.${partnerId},to_user_id.eq.${user.id})`)
       .order("created_at", { ascending: true });
 
     setMessages(data || []);
@@ -74,7 +118,9 @@ export default function Thread() {
       .map((m) => m.id);
 
     if (unreadIds.length > 0) {
-      supabase.from("messages").update({ read: true }).in("id", unreadIds).then(() => {});
+      supabase.from("messages").update({ read: true }).in("id", unreadIds).then(() => {
+        refreshUnreadCount();
+      });
     }
   }
 
@@ -87,7 +133,12 @@ export default function Thread() {
 
     const { data, error } = await supabase
       .from("messages")
-      .insert({ from_user_id: user.id, to_user_id: partnerId, content })
+      .insert({
+        from_user_id: user.id,
+        to_user_id: partnerId,
+        content,
+        sender_anonymous: showMeAsAnon,
+      })
       .select()
       .single();
 
@@ -99,8 +150,16 @@ export default function Thread() {
     setSending(false);
   }
 
-  const partnerName = isAnon ? "Anonim" : (partner?.full_name || "Kullanıcı");
-  const partnerInitials = isAnon ? "?" : getInitials(partnerName);
+  async function revealIdentity() {
+    if (revealing || myRevealed) return;
+    setRevealing(true);
+    await supabase.from("thread_reveals").insert({ user_id: user.id, partner_id: partnerId });
+    setMyRevealed(true);
+    setRevealing(false);
+  }
+
+  const partnerName = showPartnerAsAnon ? "Anonim" : (partner?.full_name || "Kullanıcı");
+  const partnerInitials = showPartnerAsAnon ? "?" : getInitials(partnerName);
 
   return (
     <div className={styles.page}>
@@ -111,14 +170,34 @@ export default function Thread() {
           </svg>
         </button>
         <div className={styles.partnerInfo}>
-          {!isAnon && partner?.avatar_url ? (
+          {!showPartnerAsAnon && partner?.avatar_url ? (
             <img src={partner.avatar_url} className={styles.partnerAvatar} alt={partnerName} />
           ) : (
             <div className={styles.partnerAvatar}>{partnerInitials}</div>
           )}
-          <span className={styles.partnerName}>{partnerName}</span>
+          <div>
+            <span className={styles.partnerName}>{partnerName}</span>
+            {showPartnerAsAnon && partnerRevealed === false && (
+              <span className={styles.partnerAnonTag}>Kimliğini gizliyor</span>
+            )}
+          </div>
         </div>
+        {showMeAsAnon && (
+          <button
+            className={styles.revealBtn}
+            onClick={revealIdentity}
+            disabled={revealing}
+          >
+            {revealing ? "…" : "Kimliğini Açıkla"}
+          </button>
+        )}
       </div>
+
+      {showMeAsAnon && (
+        <div className={styles.anonBanner}>
+          Anonim olarak mesajlaşıyorsun — karşı taraf seni "Anonim" olarak görüyor
+        </div>
+      )}
 
       <div className={styles.messages}>
         {messages.length === 0 && (
@@ -126,11 +205,13 @@ export default function Thread() {
         )}
         {messages.map((msg) => {
           const isMine = msg.from_user_id === user?.id;
+          const senderIsAnon = !isMine && msg.sender_anonymous && !partnerRevealed;
           return (
             <div
               key={msg.id}
               className={`${styles.bubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}
             >
+              {senderIsAnon && <span className={styles.anonSenderTag}>Anonim</span>}
               <p className={styles.bubbleText}>{msg.content}</p>
               <span className={styles.bubbleTime}>
                 {new Date(msg.created_at).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
@@ -146,7 +227,7 @@ export default function Thread() {
           className={styles.input}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Mesaj yaz…"
+          placeholder={showMeAsAnon ? "Anonim mesaj yaz…" : "Mesaj yaz…"}
           maxLength={500}
           autoComplete="off"
         />

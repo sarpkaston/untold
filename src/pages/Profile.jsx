@@ -16,7 +16,7 @@ export default function Profile() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "raf";
   function setActiveTab(tab) { setSearchParams({ tab }, { replace: true }); }
-  const { shelfIds, user } = useApp();
+  const { shelfIds, user, unreadMsgCount } = useApp();
   const [myStories, setMyStories] = useState([]);
   const [shelfStories, setShelfStories] = useState([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -206,8 +206,11 @@ export default function Profile() {
       {/* ── HERO ─────────────────────────────────── */}
       <div className={styles.hero}>
         <div className={styles.heroTopBar}>
-          <button className={styles.heroIconBtn} onClick={() => navigate("/mesajlar")}>
+          <button className={styles.heroIconBtn} onClick={() => navigate("/mesajlar")} style={{ position: "relative" }}>
             <MessagesBubbleIcon />
+            {unreadMsgCount > 0 && (
+              <span className={styles.msgBadge}>{unreadMsgCount > 99 ? "99+" : unreadMsgCount}</span>
+            )}
           </button>
           <button className={styles.heroIconBtn} onClick={() => navigate("/ayarlar")}>
             <SettingsIcon />
@@ -365,6 +368,7 @@ export default function Profile() {
                         item={c}
                         avatarUrl={connAvatarMap[c.user_id]}
                         onNavigate={(path) => navigate(path)}
+                        myAnonymous={false}
                       />
                     ))}
                   </>
@@ -380,6 +384,7 @@ export default function Profile() {
                         item={a}
                         avatarUrl={connAvatarMap[a.user_id]}
                         onNavigate={(path) => navigate(path)}
+                        myAnonymous={true}
                       />
                     ))}
                   </>
@@ -435,9 +440,10 @@ export default function Profile() {
 }
 
 /* ── Connection card component ────────────── */
-function ConnCard({ item, avatarUrl, onNavigate }) {
+function ConnCard({ item, avatarUrl, onNavigate, myAnonymous = false }) {
   const clickable = !item.isAnonymous;
-  const msgUrl = `/mesajlar/${item.user_id}${item.isAnonymous ? "?anon=1" : ""}`;
+  const params = [myAnonymous && "myAnon=1", item.isAnonymous && "anon=1"].filter(Boolean).join("&");
+  const msgUrl = `/mesajlar/${item.user_id}${params ? "?" + params : ""}`;
 
   return (
     <div className={styles.connCard}>

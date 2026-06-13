@@ -14,6 +14,7 @@ export function AppProvider({ children }) {
   const [bookmarkIds, setBookmarkIds] = useState([]);
   const [connectionIds, setConnectionIds] = useState([]);
   const [reportedIds, setReportedIds] = useState([]);
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -34,6 +35,7 @@ export function AppProvider({ children }) {
       setLikedIds([]);
       setShelfIds([]);
       setReportedIds([]);
+      setUnreadMsgCount(0);
       return;
     }
     supabase.from("story_likes").select("story_id").eq("user_id", user.id)
@@ -42,6 +44,20 @@ export function AppProvider({ children }) {
       .then(({ data }) => setShelfIds((data || []).map((r) => r.story_id)));
     supabase.from("story_reports").select("story_id").eq("user_id", user.id)
       .then(({ data }) => setReportedIds((data || []).map((r) => r.story_id)));
+
+    const fetchUnread = () =>
+      supabase.from("messages").select("*", { count: "exact", head: true })
+        .eq("to_user_id", user.id).eq("read", false)
+        .then(({ count }) => setUnreadMsgCount(count ?? 0));
+    fetchUnread();
+    const msgChannel = supabase
+      .channel(`unread-${user.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `to_user_id=eq.${user.id}` },
+        () => setUnreadMsgCount((p) => p + 1))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: `to_user_id=eq.${user.id}` },
+        fetchUnread)
+      .subscribe();
+    return () => supabase.removeChannel(msgChannel);
   }, [user]);
 
   async function signIn(email, password) {
@@ -145,6 +161,14 @@ export function AppProvider({ children }) {
         reportedIds,
         addReport: (id) => setReportedIds((p) => p.includes(id) ? p : [...p, id]),
         isReported: (id) => reportedIds.includes(id),
+
+        unreadMsgCount,
+        refreshUnreadCount: () => {
+          if (!user) return;
+          supabase.from("messages").select("*", { count: "exact", head: true })
+            .eq("to_user_id", user.id).eq("read", false)
+            .then(({ count }) => setUnreadMsgCount(count ?? 0));
+        },
       }}
     >
       {children}

@@ -33,6 +33,55 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.partnerAnonTag {
+  display: block;
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+.revealBtn {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.revealBtn:active { background: rgba(255,255,255,0.28); }
+.revealBtn:disabled { opacity: 0.5; }
+
+.anonBanner {
+  flex-shrink: 0;
+  background: rgba(193,68,14,0.08);
+  border-bottom: 1px solid rgba(193,68,14,0.12);
+  color: var(--terracotta, #c1440e);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 7px 16px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.anonSenderTag {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-muted, #999);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 2px;
 }
 
 .partnerAvatar {

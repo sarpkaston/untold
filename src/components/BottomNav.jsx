@@ -1,29 +1,16 @@
-import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { supabase } from "../lib/supabase";
 import { useApp } from "../context/AppContext";
 import styles from "./BottomNav.module.css";
 
 export default function BottomNav() {
-  const { user } = useApp();
+  const { user, unreadMsgCount } = useApp();
   const { pathname } = useLocation();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("messages")
-      .select("*", { count: "exact", head: true })
-      .eq("to_user_id", user.id)
-      .eq("read", false)
-      .then(({ count }) => setUnreadCount(count ?? 0));
-  }, [user, pathname]);
 
   const tabs = [
     { to: "/", label: "Keşfet", icon: <CompassIcon /> },
     { to: "/eslesmeler", label: "Bağlan", icon: <ConnectIcon /> },
     { to: "/hikayem", label: "Hikayem", icon: <BookIcon /> },
-    { to: "/mesajlar", label: "Mesajlar", icon: <ChatIcon />, dot: unreadCount > 0 },
+    { to: "/mesajlar", label: "Mesajlar", icon: <ChatIcon />, badge: unreadMsgCount },
     { to: "/profil", label: "Profil", icon: <PersonIcon /> },
   ];
 
@@ -37,7 +24,9 @@ export default function BottomNav() {
           <Link key={tab.to} to={tab.to} className={`${styles.tab} ${active ? styles.active : ""}`}>
             <span className={styles.iconWrap}>
               {tab.icon}
-              {tab.dot && <span className={styles.unreadDot} />}
+              {tab.badge > 0 && (
+                <span className={styles.unreadBadge}>{tab.badge > 99 ? "99+" : tab.badge}</span>
+              )}
             </span>
             <span className={styles.label}>{tab.label}</span>
           </Link>
