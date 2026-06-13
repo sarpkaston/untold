@@ -7,7 +7,7 @@ import StoryMenu from "../components/StoryMenu";
 import styles from "./Discover.module.css";
 
 export default function Discover() {
-  const { user, isLiked, toggleLike } = useApp();
+  const { user, isLiked, toggleLike, isReported } = useApp();
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myCats, setMyCats] = useState(new Set());
@@ -163,6 +163,7 @@ export default function Discover() {
                 myCats.has(story.category?.toLowerCase())
               }
               isInterest={userInterests.has((story.category || "").toLowerCase())}
+              isReported={isReported(story.id)}
               avatarUrl={story.isAnonymous ? null : (avatarMap[story.userId] || null)}
               onBlock={handleBlock}
             />
@@ -173,12 +174,67 @@ export default function Discover() {
   );
 }
 
-function SlideCard({ story, liked, onLike, isConnected, isInterest, avatarUrl, onBlock }) {
+function SlideCard({ story, liked, onLike, isConnected, isInterest, isReported, avatarUrl, onBlock }) {
   return (
     <div id={`slide-${story.id}`} className={styles.slide}>
-      <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
-      <div className={styles.slideGrain} />
-      <div className={styles.slideGradient} />
+      <div className={isReported ? styles.slideBlurredInner : undefined}>
+        <div className={styles.slideBg} style={{ background: getCoverGradient(story.category) }} />
+        <div className={styles.slideGrain} />
+        <div className={styles.slideGradient} />
+
+        <div className={styles.slideActions}>
+          <button
+            className={`${styles.slideActionBtn} ${liked ? styles.slideActionActive : ""}`}
+            onClick={() => onLike(story.id)}
+          >
+            <HeartIcon filled={liked} />
+            <span className={styles.slideActionLabel}>{story.likes || 0}</span>
+          </button>
+          <Link to={`/hikaye/${story.id}`} className={styles.slideActionBtn}>
+            <CommentIcon />
+            <span className={styles.slideActionLabel}>{story.commentCount ?? 0}</span>
+          </Link>
+        </div>
+
+        <div className={styles.slideContent}>
+          <div className={styles.slideBadgeRow}>
+            <span className={styles.slideCatBadge}>{story.category}</span>
+            {isInterest && <span className={styles.slideInterestBadge}>✦ İlgi alanın</span>}
+          </div>
+          <h2 className={styles.slideTitle}>{story.title}</h2>
+          {story.subtitle && <p className={styles.slideSubtitle}>{story.subtitle}</p>}
+          <div className={styles.slideAuthorRow}>
+            {avatarUrl ? (
+              <img src={avatarUrl} className={styles.slideAvatar} alt="" style={{ objectFit: "cover" }} />
+            ) : (
+              <div className={styles.slideAvatar}>{story.authorAvatar}</div>
+            )}
+            <div className={styles.slideAuthorInfo}>
+              {!story.isAnonymous && story.userId ? (
+                <Link to={`/kullanici/${story.userId}`} className={styles.slideAuthorName}>
+                  {story.author}
+                </Link>
+              ) : (
+                <span className={styles.slideAuthorName}>{story.author}</span>
+              )}
+              {isConnected && (
+                <span className={styles.slideConnectedBadge}>Bağlantın · {story.category}</span>
+              )}
+            </div>
+          </div>
+          {story.preview && (
+            <p className={styles.slidePreview}>
+              {story.preview.slice(0, 140).trim()}…
+            </p>
+          )}
+        </div>
+
+        <Link to={`/hikaye/${story.id}`} className={styles.slideReadBtn}>
+          Okumaya Başla
+        </Link>
+      </div>
+
+      {/* Menü butonu her zaman erişilebilir */}
       <StoryMenu
         storyId={story.id}
         authorUserId={story.userId}
@@ -188,56 +244,12 @@ function SlideCard({ story, liked, onLike, isConnected, isInterest, avatarUrl, o
         triggerClass={styles.slideMenuBtn}
       />
 
-      <div className={styles.slideActions}>
-        <button
-          className={`${styles.slideActionBtn} ${liked ? styles.slideActionActive : ""}`}
-          onClick={() => onLike(story.id)}
-        >
-          <HeartIcon filled={liked} />
-          <span className={styles.slideActionLabel}>{story.likes || 0}</span>
-        </button>
-        <Link to={`/hikaye/${story.id}`} className={styles.slideActionBtn}>
-          <CommentIcon />
-          <span className={styles.slideActionLabel}>{story.commentCount ?? 0}</span>
-        </Link>
-      </div>
-
-      <div className={styles.slideContent}>
-        <div className={styles.slideBadgeRow}>
-          <span className={styles.slideCatBadge}>{story.category}</span>
-          {isInterest && <span className={styles.slideInterestBadge}>✦ İlgi alanın</span>}
+      {isReported && (
+        <div className={styles.reportedSlideOverlay}>
+          <span className={styles.reportedCheckIcon}>✓</span>
+          <p className={styles.reportedSlideLabel}>Şikayet edildi</p>
         </div>
-        <h2 className={styles.slideTitle}>{story.title}</h2>
-        {story.subtitle && <p className={styles.slideSubtitle}>{story.subtitle}</p>}
-        <div className={styles.slideAuthorRow}>
-          {avatarUrl ? (
-            <img src={avatarUrl} className={styles.slideAvatar} alt="" style={{ objectFit: "cover" }} />
-          ) : (
-            <div className={styles.slideAvatar}>{story.authorAvatar}</div>
-          )}
-          <div className={styles.slideAuthorInfo}>
-            {!story.isAnonymous && story.userId ? (
-              <Link to={`/kullanici/${story.userId}`} className={styles.slideAuthorName}>
-                {story.author}
-              </Link>
-            ) : (
-              <span className={styles.slideAuthorName}>{story.author}</span>
-            )}
-            {isConnected && (
-              <span className={styles.slideConnectedBadge}>Bağlantın · {story.category}</span>
-            )}
-          </div>
-        </div>
-        {story.preview && (
-          <p className={styles.slidePreview}>
-            {story.preview.slice(0, 140).trim()}…
-          </p>
-        )}
-      </div>
-
-      <Link to={`/hikaye/${story.id}`} className={styles.slideReadBtn}>
-        Okumaya Başla
-      </Link>
+      )}
     </div>
   );
 }

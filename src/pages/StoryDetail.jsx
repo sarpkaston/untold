@@ -11,7 +11,7 @@ const isUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-/.test(String(id));
 export default function StoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isLiked, toggleLike, isOnShelf, toggleShelf, user } = useApp();
+  const { isLiked, toggleLike, isOnShelf, toggleShelf, user, isReported } = useApp();
 
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -259,7 +259,15 @@ export default function StoryDetail() {
       </div>
 
       {/* Reader */}
-      <div className={styles.reader}>
+      <div className={styles.reader} style={{ position: "relative" }}>
+        {isReported(story.id) && (
+          <div className={styles.reportedReaderOverlay}>
+            <span className={styles.reportedReaderIcon}>✓</span>
+            <p className={styles.reportedReaderText}>Bu hikayeyi şikayet ettiniz</p>
+            <p className={styles.reportedReaderSub}>İncelenene kadar içerik gizlendi</p>
+          </div>
+        )}
+        <div className={isReported(story.id) ? styles.readerBlurred : undefined}>
         <div className={styles.chapterHeader}>
           <span className={styles.chapterLabel}>Bölüm {chapter.number}</span>
           <h2 className={styles.chapterHeading}>{chapter.title}</h2>
@@ -285,6 +293,7 @@ export default function StoryDetail() {
             </button>
           )}
         </div>
+        </div>{/* /readerBlurred */}
       </div>
 
       {/* Related (static only) */}

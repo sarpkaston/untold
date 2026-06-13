@@ -7,11 +7,12 @@ import styles from "./StoryMenu.module.css";
 const REASONS = ["Spam", "Uygunsuz içerik", "Yanıltıcı", "Diğer"];
 
 export default function StoryMenu({ storyId, authorUserId, authorName, storyTitle, onBlock, triggerClass }) {
-  const { user } = useApp();
+  const { user, isReported, addReport } = useApp();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState("menu"); // menu | report | done | blocked
+  const [step, setStep] = useState("menu"); // menu | report | blocked
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
 
   // Kendi hikayelerinde menü gösterme
   if (!user || user.id === authorUserId) return null;
@@ -23,8 +24,11 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
       user_id: user.id, story_id: storyId, reason,
     });
     setSubmitting(false);
+    if (!error) addReport(storyId);
     if (error) console.error("Şikayet hatası:", error.message, error.code);
-    setStep("done");
+    close();
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2500);
   }
 
   async function blockContent() {
@@ -50,6 +54,8 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
     setTimeout(() => { setStep("menu"); setReason(""); }, 300);
   }
 
+  const alreadyReported = isReported(storyId);
+
   return (
     <>
       <button
@@ -70,9 +76,13 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
                 <p className={styles.sheetTitle}>
                   {storyTitle ? `"${storyTitle.slice(0, 38)}${storyTitle.length > 38 ? "…" : ""}"` : "Seçenekler"}
                 </p>
-                <button className={styles.option} onClick={() => setStep("report")}>
-                  <FlagIcon /> Şikayet Et
-                </button>
+                {alreadyReported ? (
+                  <div className={styles.reportedTag}>Şikayet Edildi ✓</div>
+                ) : (
+                  <button className={styles.option} onClick={() => setStep("report")}>
+                    <FlagIcon /> Şikayet Et
+                  </button>
+                )}
                 <button className={`${styles.option} ${styles.optionDanger}`} onClick={blockContent}>
                   <BlockIcon /> Bu içeriği bir daha gösterme
                 </button>
@@ -101,14 +111,6 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
               </>
             )}
 
-            {step === "done" && (
-              <div className={styles.resultState}>
-                <span>✅</span>
-                <p>Bildiriminiz alındı.<br />Teşekkürler.</p>
-                <button className={styles.cancelBtn} onClick={close}>Kapat</button>
-              </div>
-            )}
-
             {step === "blocked" && (
               <div className={styles.resultState}>
                 <span>🚫</span>
@@ -117,6 +119,11 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
             )}
           </div>
         </div>,
+        document.body
+      )}
+
+      {toastVisible && createPortal(
+        <div className={styles.toast}>Bildiriminiz alındı ✓</div>,
         document.body
       )}
     </>

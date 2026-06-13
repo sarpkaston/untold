@@ -142,6 +142,44 @@
 }
 .submitBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* ── Already reported tag ────────────────────── */
+.reportedTag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 16px;
+  background: rgba(193, 68, 14, 0.07);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--terracotta, #c1440e);
+  letter-spacing: 0.2px;
+}
+
+/* ── Toast notification ──────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 24px;
+  white-space: nowrap;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  animation: toastSlide 0.22s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* ── Done / Blocked state ────────────────────── */
 .resultState {
   display: flex;

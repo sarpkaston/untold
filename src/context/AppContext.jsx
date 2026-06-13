@@ -13,6 +13,7 @@ export function AppProvider({ children }) {
   const [shelfIds, setShelfIds] = useState([]);
   const [bookmarkIds, setBookmarkIds] = useState([]);
   const [connectionIds, setConnectionIds] = useState([]);
+  const [reportedIds, setReportedIds] = useState([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -32,12 +33,15 @@ export function AppProvider({ children }) {
     if (!user) {
       setLikedIds([]);
       setShelfIds([]);
+      setReportedIds([]);
       return;
     }
     supabase.from("story_likes").select("story_id").eq("user_id", user.id)
       .then(({ data }) => setLikedIds((data || []).map((r) => r.story_id)));
     supabase.from("story_saves").select("story_id").eq("user_id", user.id)
       .then(({ data }) => setShelfIds((data || []).map((r) => r.story_id)));
+    supabase.from("story_reports").select("story_id").eq("user_id", user.id)
+      .then(({ data }) => setReportedIds((data || []).map((r) => r.story_id)));
   }, [user]);
 
   async function signIn(email, password) {
@@ -137,6 +141,10 @@ export function AppProvider({ children }) {
           p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
         ),
         isConnected: (id) => connectionIds.includes(id),
+
+        reportedIds,
+        addReport: (id) => setReportedIds((p) => p.includes(id) ? p : [...p, id]),
+        isReported: (id) => reportedIds.includes(id),
       }}
     >
       {children}
