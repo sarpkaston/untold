@@ -22,26 +22,26 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.48);
   z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 16px calc(var(--bottom-nav-height, 68px) + 16px);
 }
 
 .sheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: white;
   border-radius: 20px;
-  padding: 20px 16px 20px;
-  width: 100%;
-  max-width: 440px;
-  max-height: calc(100dvh - var(--bottom-nav-height, 68px) - 48px);
+  padding: 20px 16px;
+  width: 90%;
+  max-width: 320px;
+  max-height: 80vh;
   overflow-y: auto;
   animation: menuIn 0.18s ease;
 }
 
 @keyframes menuIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+  to   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
 }
 
 /* ── Handle (hidden for centered modal) ──────── */

@@ -18,11 +18,11 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
   async function submitReport() {
     if (!reason || submitting) return;
     setSubmitting(true);
-    await supabase.from("story_reports").upsert(
-      { user_id: user.id, story_id: storyId, reason },
-      { onConflict: "user_id,story_id" }
-    );
+    const { error } = await supabase.from("story_reports").insert({
+      user_id: user.id, story_id: storyId, reason,
+    });
     setSubmitting(false);
+    if (error) console.error("Şikayet hatası:", error.message, error.code);
     setStep("done");
   }
 
