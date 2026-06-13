@@ -151,7 +151,15 @@ function ReportsTab() {
         .order("created_at", { ascending: false })
         .limit(200);
 
-      if (error) { setFetchError(error.message); setLoading(false); return; }
+      if (error) {
+        console.error("story_reports SELECT hatası:", error);
+        const msg = error.message?.includes("permission denied")
+          ? "İzin hatası: Supabase SQL Editor'da 012_fix_rls_auth_email.sql migrasyonunu çalıştır."
+          : error.message;
+        setFetchError(msg);
+        setLoading(false);
+        return;
+      }
       if (!reportData || reportData.length === 0) { setLoading(false); return; }
       setReports(reportData);
 

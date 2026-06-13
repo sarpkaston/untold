@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useApp } from "../context/AppContext";
 import { supabase } from "../lib/supabase";
 import styles from "./StoryMenu.module.css";
@@ -59,7 +60,7 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
         <DotsIcon />
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className={styles.overlay} onClick={close}>
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <div className={styles.handle} />
@@ -115,7 +116,8 @@ export default function StoryMenu({ storyId, authorUserId, authorName, storyTitl
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
