@@ -5,13 +5,41 @@ import { useApp } from "../context/AppContext";
 import { PRESET_CATEGORIES, getInitials } from "../lib/storyUtils";
 import styles from "./Write.module.css";
 
-const INSPIRATION_QUESTIONS = [
+const DEFAULT_QUESTIONS = [
   "Ne zaman ağladın ama kimseye söylemedin?",
   "Hayatındaki en büyük dönüm noktası neydi?",
   "10 yıl sonra kendine ne söylerdin?",
   "Kimden en çok etkilendin ve neden?",
   "Pişman olduğun bir karar var mı?",
 ];
+
+const INTEREST_PROMPTS = {
+  "aşk": ["İlk aşkın sana ne öğretti?", "Sonu gelmeyen bir duyguyu nasıl bıraktın?", "Hiç kimseye söyleyemediğin bir aşkın var mı?"],
+  "aile": ["Ailenle paylaşmadığın bir anı anlat.", "Ebeveynlerinden öğrendiğin en değerli şey neydi?", "Çocukluğundan bir sahne gözünde canlanıyor mu?"],
+  "kariyer": ["Kariyerinde en cesur adımın ne oldu?", "En büyük başarısızlığından ne öğrendin?", "Hayalindeki iş hâlâ uzakta mı?"],
+  "sağlık": ["Bedenini dinlemeye ne zaman başladın?", "Hastalık sana ne öğretti?", "Kendine iyi bakmayı ne zaman öğrendin?"],
+  "spor": ["Bir hedef belirleyip pes ettiğin oldu mu?", "Spor sana ne kazandırdı?", "En zor antremanını anlat."],
+  "psikoloji": ["Kendinle en zor ne zaman yüzleştim?", "Farkında olmadan tekrarladığın bir davranış var mı?", "Terapide öğrendiğin en önemli şey neydi?"],
+  "müzik": ["Bir şarkı seni neden ağlatır?", "Müzik olmadan geçirdiğin bir günü hatırlıyor musun?", "Hangi şarkı seni en çok anlatan?"],
+  "edebiyat": ["Bir kitap seni nasıl değiştirdi?", "Hangi karakterle aynı kişisin?", "Okuduğun en unutulmaz cümle neydi?"],
+  "girişimcilik": ["İlk fikrin neydi ve ne oldu?", "Başarısız olduğun bir girişimi anlat.", "Pişman olmadığın bir risk ne?"],
+  "seyahat": ["Hiç kaybolduğun bir yolculuğu anlat.", "Seni en çok değiştiren şehir hangisi?", "Eve dönüşün nasıl hissettirdi?"],
+  "yemek": ["Annenin veya birinin yemeğini anlat.", "Yemek sana neyi hatırlatır?", "En iyi yediğin yemeğin hikayesi nedir?"],
+  "teknoloji": ["Teknolojiyle ilişkin ne zaman karmaşıklaştı?", "Dijital dünyada kaybettiğin şey nedir?", "Ekranlar olmadan bir gün geçirebilir miydin?"],
+  "sinema": ["Bir film seni neden saatlerce düşündürdü?", "Hangi filmin içine girmek isterdin?", "Sinema ile ilk karşılaşman nasıldı?"],
+  "oyun": ["Oyunlardan öğrendiğin bir ders nedir?", "Kaybetmek seni nasıl hissettiriyor?", "Bir oyunun içinde kaybolduğun oldu mu?"],
+  "din & inanç": ["İnanç seni en zor anda nasıl tuttu?", "Sorguladığın bir inanç var mı?", "Manevi bir deneyim yaşadın mı?"],
+  "doğa": ["Doğada yalnız kaldığın bir anı anlat.", "Bir ağaç sana ne söylerdi?", "Doğa seni en çok hangi anda sardı?"],
+  "sanat": ["İlk yaptığın sanatsal şeyi hatırlıyor musun?", "Sanat olmadan hayat nasıl olurdu?", "Seni en çok etkileyen eser hangisi?"],
+  "tarih": ["Tarihin hangi dönemini yaşamak isterdin?", "Tarih tekerrür ediyor mu sence?", "Tarihten kim olsaydın ne değiştirirdin?"],
+  "felsefe": ["Varoluşu sorguladığın bir geceyi anlat.", "Özgür irade var mı sence?", "Anlam arayışın nerede başladı?"],
+  "eğitim": ["Okul sana ne öğretmedi?", "Hayatını değiştiren bir öğretmen var mı?", "Öğrenmenin tadını ne zaman çıkardın?"],
+  "depresyon": ["Karanlıkta tutunduğun şey neydi?", "Kendini anlatamamanın ağırlığı nasıl bir his?", "İlk kez yardım istediğin anı anlat."],
+  "bağımlılık": ["Bırakmak istediğinde ne oldu?", "Bağımlılık sana ne veriyordu?", "Vazgeçişin ilk adımı nasıldı?"],
+  "kayıp": ["Yası nasıl yaşadın?", "Kaybettiğin biriyle vedalaşabilseydin ne söylerdin?", "Kayıptan sonra ne değişti?"],
+  "göç": ["Yuva sana ne anlam taşıyor?", "Yeni bir yere ilk geldiğinde ne hissettin?", "İki kültür arasında sıkışık hissettin mi?"],
+  "travma": ["Travmayı dile getirmek neden bu kadar zor?", "İyileşmeye başladığın an hangisiydi?", "Kendine şefkatle bakabildin mi?"],
+};
 
 function getMinDateTime() {
   const d = new Date();
@@ -41,6 +69,23 @@ export default function Write() {
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState("");
   const [publishDone, setPublishDone] = useState(false);
+
+  // Personalized inspiration questions
+  const [inspirationQuestions, setInspirationQuestions] = useState(DEFAULT_QUESTIONS);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("interests").eq("id", user.id).single()
+      .then(({ data }) => {
+        const interests = data?.interests || [];
+        if (interests.length === 0) return;
+        const questions = interests.map(interest => {
+          const pool = INTEREST_PROMPTS[interest.toLowerCase()] || [];
+          return pool[Math.floor(Math.random() * pool.length)];
+        }).filter(Boolean);
+        if (questions.length >= 3) setInspirationQuestions(questions);
+      });
+  }, [user]);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -367,7 +412,7 @@ export default function Write() {
                 </div>
 
                 <div className={styles.inspirationList}>
-                  {INSPIRATION_QUESTIONS.map((q, i) => (
+                  {inspirationQuestions.map((q, i) => (
                     <button
                       key={i}
                       className={styles.inspirationQ}

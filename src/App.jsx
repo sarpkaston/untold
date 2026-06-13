@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppProvider, useApp } from "./context/AppContext";
+import { supabase } from "./lib/supabase";
 import Auth from "./pages/Auth";
 import Splash from "./components/Splash";
+import Onboarding from "./pages/Onboarding";
 import BottomNav from "./components/BottomNav";
 import Discover from "./pages/Discover";
 import Matches from "./pages/Matches";
@@ -27,13 +29,28 @@ function AppInner() {
   const [phase, setPhase] = useState("loading");
   const initialCheckDone = useRef(false);
 
+  async function checkInterests() {
+    if (!user) { setPhase("app"); return; }
+    const { data } = await supabase
+      .from("profiles")
+      .select("interests")
+      .eq("id", user.id)
+      .single();
+    if (!data?.interests || data.interests.length === 0) {
+      setPhase("onboarding");
+    } else {
+      setPhase("app");
+    }
+  }
+
   useEffect(() => {
     if (authLoading) return;
 
     if (!initialCheckDone.current) {
       initialCheckDone.current = true;
-      // Returning user with existing session → skip splash
-      setPhase(user ? "app" : "auth");
+      if (!user) { setPhase("auth"); return; }
+      // Returning user with existing session: check interests first
+      checkInterests();
       return;
     }
 
@@ -48,7 +65,11 @@ function AppInner() {
   }
 
   if (phase === "splash") {
-    return <Splash onDone={() => setPhase("app")} />;
+    return <Splash onDone={checkInterests} />;
+  }
+
+  if (phase === "onboarding") {
+    return <Onboarding onDone={() => setPhase("app")} />;
   }
 
   return (

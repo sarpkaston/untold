@@ -137,18 +137,44 @@ function StatsTab() {
 /* ── Şikayetler ──────────────────────────────────── */
 function ReportsTab() {
   const [reports, setReports] = useState([]);
+  const [storyMap, setStoryMap] = useState({});
+  const [reporterMap, setReporterMap] = useState({});
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [deleting, setDeleting] = useState(null);
 
   useEffect(() => {
-    supabase.from("story_reports")
-      .select("id, reason, created_at, story_id, user_id, stories(id, title, author_name, is_anonymous)")
-      .order("created_at", { ascending: false })
-      .limit(200)
-      .then(({ data }) => { setReports(data || []); setLoading(false); });
+    async function load() {
+      const { data: reportData, error } = await supabase
+        .from("story_reports")
+        .select("id, reason, created_at, story_id, user_id")
+        .order("created_at", { ascending: false })
+        .limit(200);
+
+      if (error) { setFetchError(error.message); setLoading(false); return; }
+      if (!reportData || reportData.length === 0) { setLoading(false); return; }
+      setReports(reportData);
+
+      const storyIds = [...new Set(reportData.map(r => r.story_id))];
+      const userIds  = [...new Set(reportData.map(r => r.user_id).filter(Boolean))];
+
+      const [{ data: storiesData }, { data: profilesData }] = await Promise.all([
+        supabase.from("stories").select("id, title, author_name, is_anonymous").in("id", storyIds),
+        userIds.length > 0
+          ? supabase.from("profiles").select("id, full_name, username").in("id", userIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const sm = {}; (storiesData || []).forEach(s => { sm[s.id] = s; });
+      const pm = {}; (profilesData || []).forEach(p => { pm[p.id] = p; });
+      setStoryMap(sm);
+      setReporterMap(pm);
+      setLoading(false);
+    }
+    load();
   }, []);
 
-  async function deleteReportedStory(storyId, reportIds) {
+  async function deleteReportedStory(storyId) {
     if (!window.confirm("Bu hikayeyi silmek istediğinden emin misin?")) return;
     setDeleting(storyId);
     await supabase.from("stories").delete().eq("id", storyId);
@@ -162,12 +188,12 @@ function ReportsTab() {
   }
 
   if (loading) return <Spinner />;
+  if (fetchError) return <EmptyAdmin text={`Hata: ${fetchError}`} />;
   if (reports.length === 0) return <EmptyAdmin text="Bekleyen şikayet yok." />;
 
-  // Group by story_id
   const grouped = {};
   reports.forEach(r => {
-    if (!grouped[r.story_id]) grouped[r.story_id] = { story: r.stories, reports: [] };
+    if (!grouped[r.story_id]) grouped[r.story_id] = { story: storyMap[r.story_id] || null, reports: [] };
     grouped[r.story_id].reports.push(r);
   });
 
@@ -187,18 +213,27 @@ function ReportsTab() {
             </span>
           </div>
           <div className={styles.reportReasons}>
-            {rs.map(r => (
-              <div key={r.id} className={styles.reportReason}>
-                <span className={styles.reasonTag}>{r.reason}</span>
-                <span className={styles.reportDate}>{fmtDate(r.created_at)}</span>
-                <button className={styles.dismissBtn} onClick={() => dismissReport(r.id)} title="Şikayeti kaldır">✕</button>
-              </div>
-            ))}
+            {rs.map(r => {
+              const reporter = reporterMap[r.user_id];
+              const reporterName = reporter
+                ? (reporter.full_name || `@${reporter.username}` || "Bilinmeyen")
+                : "Bilinmeyen";
+              return (
+                <div key={r.id} className={styles.reportReason}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span className={styles.reasonTag}>{r.reason}</span>
+                    <span className={styles.reporterName}> — {reporterName}</span>
+                  </div>
+                  <span className={styles.reportDate}>{fmtDate(r.created_at)}</span>
+                  <button className={styles.dismissBtn} onClick={() => dismissReport(r.id)} title="Şikayeti kaldır">✕</button>
+                </div>
+              );
+            })}
           </div>
           {story && (
             <button
               className={styles.deleteStoryBtn}
-              onClick={() => deleteReportedStory(storyId, rs.map(r => r.id))}
+              onClick={() => deleteReportedStory(storyId)}
               disabled={deleting === storyId}
             >
               {deleting === storyId ? "Siliniyor…" : "🗑 Hikayeyi Sil"}

@@ -18,6 +18,7 @@ export default function Discover() {
   const SCROLL_KEY = "discover_active_id";
   const [blockedStoryIds, setBlockedStoryIds] = useState(new Set());
   const [blockedUserIds, setBlockedUserIds] = useState(new Set());
+  const [blockedLoaded, setBlockedLoaded] = useState(false);
 
   useEffect(() => {
     supabase.rpc("auto_publish_scheduled_stories").then(() => {});
@@ -58,13 +59,14 @@ export default function Discover() {
 
   // Gizlenen hikaye ve kullanıcıları yükle
   useEffect(() => {
-    if (!user) return;
+    if (!user) { setBlockedLoaded(true); return; }
     Promise.all([
       supabase.from("blocked_stories").select("story_id").eq("user_id", user.id),
       supabase.from("blocked_users").select("blocked_user_id").eq("user_id", user.id),
     ]).then(([{ data: bs }, { data: bu }]) => {
       setBlockedStoryIds(new Set((bs || []).map(r => r.story_id)));
       setBlockedUserIds(new Set((bu || []).map(r => r.blocked_user_id)));
+      setBlockedLoaded(true);
     });
   }, [user]);
 
@@ -73,17 +75,23 @@ export default function Discover() {
     if (authorUserId) setBlockedUserIds(prev => new Set([...prev, authorUserId]));
   }
 
-  // Hikayeler yüklenince kaydedilmiş pozisyona dön (sadece bir kez)
+  // Hikayeler ve gizleme listesi yüklenince kaydedilmiş pozisyona dön (sadece bir kez)
   useEffect(() => {
-    if (stories.length === 0 || restoredRef.current) return;
+    if (!blockedLoaded || stories.length === 0 || restoredRef.current) return;
     restoredRef.current = true;
     const savedId = sessionStorage.getItem(SCROLL_KEY);
-    if (!savedId) return;
-    setTimeout(() => {
-      const el = document.getElementById(`slide-${savedId}`);
-      if (el) el.scrollIntoView({ behavior: "instant" });
-    }, 0);
-  }, [stories]);
+    if (!savedId || !feedRef.current) return;
+    const visible = stories.filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)));
+    const index = visible.findIndex(s => s.id === savedId);
+    if (index <= 0) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (feedRef.current) {
+          feedRef.current.scrollTop = index * feedRef.current.clientHeight;
+        }
+      });
+    });
+  }, [stories, blockedLoaded]);
 
   function handleScroll() {
     clearTimeout(saveTimer.current);
@@ -91,7 +99,8 @@ export default function Discover() {
       if (!feedRef.current) return;
       const { scrollTop, clientHeight } = feedRef.current;
       const index = Math.round(scrollTop / clientHeight);
-      const id = stories[index]?.id;
+      const visible = stories.filter(s => !blockedStoryIds.has(s.id) && (!s.userId || !blockedUserIds.has(s.userId)));
+      const id = visible[index]?.id;
       if (id) sessionStorage.setItem(SCROLL_KEY, id);
     }, 150);
   }
