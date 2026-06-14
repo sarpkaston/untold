@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { supabase } from "../lib/supabase";
@@ -17,10 +17,14 @@ export default function Profile() {
   const activeTab = searchParams.get("tab") || "raf";
   function setActiveTab(tab) { setSearchParams({ tab }, { replace: true }); }
   const { shelfIds, user, unreadMsgCount } = useApp();
+
   const [myStories, setMyStories] = useState([]);
   const [shelfStories, setShelfStories] = useState([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [bio, setBio] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Bağlantılar
   const [connections, setConnections] = useState([]);
@@ -43,34 +47,31 @@ export default function Profile() {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Kullanıcı";
   const usernameSlug = "@" + (user?.email?.split("@")[0] || "kullanici").toLowerCase();
-  const bio = user?.user_metadata?.bio || "";
   const initials = getInitials(displayName);
 
-  // Load avatar
+  // Profil yükle
   useEffect(() => {
     if (!user) return;
     supabase.from("profiles").select("avatar_url, bio, username").eq("id", user.id).single()
       .then(({ data }) => {
-        if (data?.avatar_url) {
-          const base = data.avatar_url.split("?")[0];
-          setAvatarUrl(base + "?t=" + Date.now());
-        }
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url.split("?")[0] + "?t=" + Date.now());
+        if (data?.bio) setBio(data.bio);
       });
   }, [user]);
 
-  // Load my stories
+  // Hikayeler (yorum sayısıyla birlikte)
   useEffect(() => {
     if (!user) return;
     supabase
       .from("stories")
-      .select("id, title, category, is_anonymous, likes, created_at")
+      .select("id, title, category, is_anonymous, likes, created_at, story_comments(count)")
       .eq("user_id", user.id)
       .eq("published", true)
       .order("created_at", { ascending: false })
       .then(({ data }) => setMyStories(data || []));
   }, [user]);
 
-  // Load shelf stories
+  // Raf hikayeleri
   useEffect(() => {
     if (!user) { setShelfStories([]); return; }
     (async () => {
@@ -82,7 +83,7 @@ export default function Profile() {
     })();
   }, [user, shelfIds]);
 
-  // Fetch connections
+  // Bağlantılar
   useEffect(() => {
     if (!user || connections.length > 0) return;
     setConnectionsLoading(true);
@@ -114,11 +115,7 @@ export default function Profile() {
         const cat = s.category.toLowerCase();
         if (!myCats.has(cat)) return;
         if (!userMap[s.user_id]) {
-          userMap[s.user_id] = {
-            user_id: s.user_id, realName: null,
-            nonAnonMatchCats: new Set(), anonMatchCats: new Set(),
-            viaMyNonAnon: false, viaMyAnonOnly: false, stories: {},
-          };
+          userMap[s.user_id] = { user_id: s.user_id, realName: null, nonAnonMatchCats: new Set(), anonMatchCats: new Set(), viaMyNonAnon: false, viaMyAnonOnly: false, stories: {} };
         }
         if (myNonAnonCats.has(cat)) userMap[s.user_id].viaMyNonAnon = true;
         if (myAnonOnlyCats.has(cat)) userMap[s.user_id].viaMyAnonOnly = true;
@@ -149,7 +146,6 @@ export default function Profile() {
       setConnections(reg);
       setAnonConnections(anonFromMyAnonMatches);
 
-      // Batch-fetch profile avatars for visible connections
       const visibleIds = [...reg, ...anonFromMyAnonMatches].filter(c => !c.isAnonymous).map(c => c.user_id);
       if (visibleIds.length > 0) {
         const { data: profiles } = await supabase.from("profiles").select("id, avatar_url").in("id", visibleIds);
@@ -163,6 +159,24 @@ export default function Profile() {
 
     fetchConnections();
   }, [user]);
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) return;
+    setUploading(true);
+    const ext = file.name.split(".").pop().toLowerCase();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+    if (!upErr) {
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      const freshUrl = publicUrl + "?t=" + Date.now();
+      await supabase.from("profiles").upsert({ id: user.id, avatar_url: freshUrl });
+      setAvatarUrl(freshUrl);
+    }
+    setUploading(false);
+  }
 
   async function deleteStory(id) {
     await supabase.from("stories").delete().eq("id", id);
@@ -179,7 +193,7 @@ export default function Profile() {
       room_name: roomName, title: liveTitle.trim(),
     });
     setStartingLive(false);
-    if (error) { setLiveError("Başlatılamadı: " + error.message); }
+    if (error) setLiveError("Başlatılamadı: " + error.message);
     else { setShowLiveModal(false); setLiveTitle(""); navigate(`/canli/${roomName}`); }
   }
 
@@ -193,7 +207,7 @@ export default function Profile() {
       is_active: false, is_scheduled: true, scheduled_at: new Date(planDate).toISOString(),
     });
     setPlanningLive(false);
-    if (error) { setPlanError("Planlanamadı: " + error.message); }
+    if (error) setPlanError("Planlanamadı: " + error.message);
     else {
       setPlanDone(true);
       setTimeout(() => { setShowPlanModal(false); setPlanTitle(""); setPlanDesc(""); setPlanDate(""); setPlanDone(false); }, 2200);
@@ -217,29 +231,28 @@ export default function Profile() {
           </button>
         </div>
 
-        <div className={styles.heroAvatarWrap} onClick={() => navigate("/ayarlar")}>
+        {/* Avatar — tıklanınca fotoğraf değişir */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: "none" }}
+          onChange={handleAvatarChange}
+        />
+        <div className={styles.heroAvatarWrap} onClick={() => fileInputRef.current?.click()}>
           {avatarUrl ? (
             <img src={avatarUrl} className={styles.heroAvatarImg} alt={displayName} />
           ) : (
             <div className={styles.heroAvatar}>{initials}</div>
           )}
-          <div className={styles.cameraOverlay}><CameraIcon /></div>
+          <div className={styles.cameraOverlay}>
+            {uploading ? <span style={{ fontSize: 9, color: "#c1440e" }}>…</span> : <CameraIcon />}
+          </div>
         </div>
 
         <h1 className={styles.heroName}>{displayName}</h1>
         <p className={styles.heroUsername}>{usernameSlug}</p>
         {bio && <p className={styles.heroBio}>{bio}</p>}
-
-        <div className={styles.heroActions}>
-          <button className={styles.heroActionBtn} onClick={() => { setShowLiveModal(true); setLiveError(""); }}>
-            <span className={styles.liveDotSmall} />
-            Canlı Yayın
-          </button>
-          <button className={styles.heroActionBtn} onClick={() => { setShowPlanModal(true); setPlanError(""); setPlanDone(false); }}>
-            <CalendarIcon />
-            Planla
-          </button>
-        </div>
       </div>
 
       {/* ── STATS CARD ───────────────────────────── */}
@@ -260,6 +273,18 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* ── HERO ALTINDA BUTONLAR ─────────────────── */}
+      <div className={styles.heroActions}>
+        <button className={styles.heroActionBtn} onClick={() => { setShowLiveModal(true); setLiveError(""); }}>
+          <span className={styles.liveDotSmall} />
+          Canlı Yayın
+        </button>
+        <button className={styles.heroActionBtn} onClick={() => { setShowPlanModal(true); setPlanError(""); setPlanDone(false); }}>
+          <CalendarIcon />
+          Planla
+        </button>
+      </div>
+
       {/* ── TAB PILLS ────────────────────────────── */}
       <div className={styles.tabRow}>
         <div className={styles.tabPills}>
@@ -278,7 +303,6 @@ export default function Profile() {
       {/* ── TAB CONTENT ──────────────────────────── */}
       <div className={styles.tabContent}>
 
-        {/* ── Rafım (değiştirilmedi) ── */}
         {activeTab === "raf" && (
           shelfStories.length === 0 ? (
             <EmptyState emoji="📚" title="Rafın henüz boş" desc='"Rafıma Al" butonuyla hikaye ekle.' />
@@ -301,52 +325,56 @@ export default function Profile() {
           )
         )}
 
-        {/* ── Hikayem ── */}
         {activeTab === "hikaye" && (
           <div className={styles.storiesTab}>
             {myStories.length === 0 ? (
               <EmptyState emoji="✍️" title="Henüz hikayeniz yok" desc="İlk hikayeni yaz ve topluluğa katıl!" />
             ) : (
-              myStories.map((s) => (
-                <div key={s.id} className={styles.storyRow}>
-                  {confirmDeleteId === s.id ? (
-                    <div className={styles.deleteConfirm}>
-                      <p className={styles.deleteConfirmText}>Bu hikayeyi silmek istediğinden emin misin?</p>
-                      <div className={styles.deleteConfirmActions}>
-                        <button className={styles.cancelDeleteBtn} onClick={() => setConfirmDeleteId(null)}>İptal</button>
-                        <button className={styles.confirmDeleteBtn} onClick={() => deleteStory(s.id)}>Evet, Sil</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <Link to={`/hikaye/${s.id}`} className={styles.storyCard}>
-                      <div className={styles.storyCatLine} style={{ background: getCoverColor(s.category) }} />
-                      <div className={styles.storyCardBody}>
-                        <div className={styles.storyCardTop}>
-                          <p className={styles.storyCardTitle}>
-                            {s.is_anonymous && <span className={styles.lockIcon}>🔒 </span>}
-                            {s.title}
-                          </p>
-                          <button
-                            className={styles.deleteBtn}
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(s.id); }}
-                            title="Sil"
-                          >
-                            <TrashIcon />
-                          </button>
+              myStories.map((s) => {
+                const commentCount = s.story_comments?.[0]?.count ?? 0;
+                return (
+                  <div key={s.id} className={styles.storyRow}>
+                    {confirmDeleteId === s.id ? (
+                      <div className={styles.deleteConfirm}>
+                        <p className={styles.deleteConfirmText}>Bu hikayeyi silmek istediğinden emin misin?</p>
+                        <div className={styles.deleteConfirmActions}>
+                          <button className={styles.cancelDeleteBtn} onClick={() => setConfirmDeleteId(null)}>İptal</button>
+                          <button className={styles.confirmDeleteBtn} onClick={() => deleteStory(s.id)}>Evet, Sil</button>
                         </div>
-                        <p className={styles.storyCardMeta}>{formatDate(s.created_at)} · {s.category}</p>
-                        <p className={styles.storyCardStats}>❤ {s.likes || 0}</p>
                       </div>
-                    </Link>
-                  )}
-                </div>
-              ))
+                    ) : (
+                      <Link to={`/hikaye/${s.id}`} className={styles.storyCard}>
+                        <div className={styles.storyCatLine} style={{ background: getCoverColor(s.category) }} />
+                        <div className={styles.storyCardBody}>
+                          <div className={styles.storyCardTop}>
+                            <p className={styles.storyCardTitle}>
+                              {s.is_anonymous && <span className={styles.lockIcon}>🔒 </span>}
+                              {s.title}
+                            </p>
+                            <button
+                              className={styles.deleteBtn}
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDeleteId(s.id); }}
+                              title="Sil"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                          <p className={styles.storyCardMeta}>{formatDate(s.created_at)} · {s.category}</p>
+                          <p className={styles.storyCardStats}>
+                            <span>❤ {s.likes || 0}</span>
+                            <span>💬 {commentCount}</span>
+                          </p>
+                        </div>
+                      </Link>
+                    )}
+                  </div>
+                );
+              })
             )}
             <Link to="/yaz" className={styles.newStoryBtn}>+ Yeni Hikaye Yaz</Link>
           </div>
         )}
 
-        {/* ── Bağlantılar ── */}
         {activeTab === "baglantilar" && (
           <div className={styles.connectionsTab}>
             {connectionsLoading ? (
@@ -439,7 +467,7 @@ export default function Profile() {
   );
 }
 
-/* ── Connection card component ────────────── */
+/* ── Bağlantı kartı ───────────────────────── */
 function ConnCard({ item, avatarUrl, onNavigate, myAnonymous = false }) {
   const clickable = !item.isAnonymous;
   const params = [myAnonymous && "myAnon=1", item.isAnonymous && "anon=1"].filter(Boolean).join("&");
@@ -496,7 +524,7 @@ function EmptyState({ emoji, title, desc }) {
   );
 }
 
-/* ── Icons ─────────────────────────────────── */
+/* ── İkonlar ────────────────────────────────── */
 function TrashIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
