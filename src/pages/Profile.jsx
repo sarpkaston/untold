@@ -253,23 +253,23 @@ export default function Profile() {
         <h1 className={styles.heroName}>{displayName}</h1>
         <p className={styles.heroUsername}>{usernameSlug}</p>
         {bio && <p className={styles.heroBio}>{bio}</p>}
-      </div>
 
-      {/* ── STATS CARD ───────────────────────────── */}
-      <div className={styles.statsCard}>
-        <div className={styles.statItem}>
-          <span className={styles.statNum}>{shelfIds.length}</span>
-          <span className={styles.statLabel}>Rafımda</span>
-        </div>
-        <div className={styles.statDivider} />
-        <div className={styles.statItem}>
-          <span className={styles.statNum}>{myStories.length}</span>
-          <span className={styles.statLabel}>Hikaye</span>
-        </div>
-        <div className={styles.statDivider} />
-        <div className={styles.statItem}>
-          <span className={styles.statNum}>{connections.length + anonConnections.length}</span>
-          <span className={styles.statLabel}>Bağlantı</span>
+        {/* ── STATS CARD — hero içinde ── */}
+        <div className={styles.statsCard}>
+          <div className={styles.statItem}>
+            <span className={styles.statNum}>{shelfIds.length}</span>
+            <span className={styles.statLabel}>Rafımda</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <span className={styles.statNum}>{myStories.length}</span>
+            <span className={styles.statLabel}>Hikaye</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <span className={styles.statNum}>{connections.length + anonConnections.length}</span>
+            <span className={styles.statLabel}>Bağlantı</span>
+          </div>
         </div>
       </div>
 
@@ -285,19 +285,17 @@ export default function Profile() {
         </button>
       </div>
 
-      {/* ── TAB PILLS ────────────────────────────── */}
-      <div className={styles.tabRow}>
-        <div className={styles.tabPills}>
-          {["raf", "hikaye", "baglantilar"].map((tab) => (
-            <button
-              key={tab}
-              className={`${styles.pill} ${activeTab === tab ? styles.pillActive : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "raf" ? "Rafım" : tab === "hikaye" ? "Hikayem" : "Bağlantılar"}
-            </button>
-          ))}
-        </div>
+      {/* ── TABS — underline/Twitter stili ─────── */}
+      <div className={styles.tabBar}>
+        {["raf", "hikaye", "baglantilar"].map((tab) => (
+          <button
+            key={tab}
+            className={`${styles.tabBtn} ${activeTab === tab ? styles.tabBtnActive : ""}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab === "raf" ? "Rafım" : tab === "hikaye" ? "Hikayem" : "Bağlantılar"}
+          </button>
+        ))}
       </div>
 
       {/* ── TAB CONTENT ──────────────────────────── */}
@@ -360,10 +358,10 @@ export default function Profile() {
                             </button>
                           </div>
                           <p className={styles.storyCardMeta}>{formatDate(s.created_at)} · {s.category}</p>
-                          <p className={styles.storyCardStats}>
-                            <span>❤ {s.likes || 0}</span>
-                            <span>💬 {commentCount}</span>
-                          </p>
+                          <div className={styles.storyCardStats}>
+                            <span className={styles.statPill}><HeartStatIcon />{s.likes || 0}</span>
+                            <span className={styles.statPill}><CommentStatIcon />{commentCount}</span>
+                          </div>
                         </div>
                       </Link>
                     )}
@@ -568,6 +566,20 @@ function CameraIcon() {
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
       <circle cx="12" cy="13" r="4" />
+    </svg>
+  );
+}
+function HeartStatIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+function CommentStatIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
